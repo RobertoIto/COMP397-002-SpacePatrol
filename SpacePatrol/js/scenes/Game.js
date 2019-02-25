@@ -23,6 +23,12 @@
     p.enemyLastSpawnTime = null;
     p.enemySpawnWaiter = 2000;
 
+    // Bosses
+    p.boss = null;
+    p.bossLastSpawnTime = 0;
+    p.bossSpawnWaiter = 60000;//10000;
+    p.nextBossShip = 0;
+
     // SPRITES
     p.stars = null;
     p.explosionPool = null;
@@ -65,6 +71,8 @@
         this.explosionPool = [];
         this.betweenLevels = false;
         this.enemyLastSpawnTime = 0;
+        this.bossLastSpawnTime = 0;
+        this.nextBossShip = 0;
     }
     p.buildStarField = function () {
         var star;
@@ -98,7 +106,8 @@
         this.leftWall = this.heroShip.getBounds().width / 2;
         this.rightWall = screen_width - this.heroShip.getBounds().width / 2;
         this.floor = screen_height - this.heroShip.getBounds().height;
-        this.ceiling = screen_height - (this.heroShip.getBounds().height * 3);
+        //this.ceiling = screen_height - (this.heroShip.getBounds().height * 3);
+        this.ceiling = screen_height - (this.heroShip.getBounds().height * 13);
     }
     p.setControls = function () {
         document.onkeydown = this.handleKeyDown.bind(this);
@@ -206,6 +215,33 @@
             }
         }
     }
+    p.updateBoss = function () {
+        if (this.boss != null){
+            var nextX = this.boss.x + this.boss.velx;
+            var nextY = this.boss.y + this.boss.vely;
+    
+            if (nextX < (this.leftWall + 35)) {
+                nextX = this.leftWall + 35;
+                this.boss.velx *= -1;
+            }
+            else if (nextX > (this.rightWall - 35)) {
+                nextX = this.rightWall - 35;
+                this.boss.velx *= -1;
+            }
+            
+            if (nextY > (this.floor / 1.5)) {
+                nextY = this.floor / 1.5;
+                this.boss.vely *= -1;
+            }
+            else if (nextY < (this.ceiling)) {
+                nextY = this.ceiling;
+                this.boss.vely *= -1;
+            }
+    
+            this.boss.nextX = nextX;
+            this.boss.nextY = nextY;
+        }        
+    }
     p.updateHeroBullets = function () {
         var bullet, i, velY;
         var len = this.heroBullets.length - 1;
@@ -300,6 +336,21 @@
             }
         }
     }
+    p.renderBoss = function () {
+        if (this.boss != null){
+            if (this.boss.shouldDie) {
+                this.scoreboard.updateScore(this.boss.points);
+                this.removeChild(this.boss);
+                this.boss.explode();
+                this.boss.reset();
+                this.boss = null;
+            }
+            else {
+                this.boss.x = this.boss.nextX;
+                this.boss.y = this.boss.nextY;
+            }
+        }        
+    }
     /*
      *
      * CHECK FUNCTIONS
@@ -309,6 +360,29 @@
         if (time - this.enemyLastSpawnTime > this.enemySpawnWaiter) {
             this.spawnEnemyShip();
             this.enemyLastSpawnTime = time;
+        }
+    }
+    p.checkForBossSpawn = function (time) {
+        if ((time - this.bossLastSpawnTime > this.bossSpawnWaiter) &&
+            (this.boss == null)) {
+            this.nextBossShip += 1;
+            this.spawnBossShip(this.nextBossShip);
+            this.bossLastSpawnTime = time;
+        } 
+        else if (this.boss != null){
+            this.bossLastSpawnTime = time;
+        }
+    }
+    p.checkForBossFire = function (time) {
+        if (this.boss != null){
+            var i;
+            var len = this.enemies.length - 1;
+            for (i = len; i >= 0; i--) {
+                if (time - this.boss.lastFired > this.boss.fireDelay) {
+                    this.spawnBossBullet(this.boss);
+                    this.boss.lastFired = time;
+                }
+            }    
         }
     }
     p.checkForEnemyFire = function (time) {
@@ -335,6 +409,19 @@
                 }
             }
         }
+    }
+    p.checkHeroBulletsBoss = function () {
+        if (this.boss != null){
+            var i, b, bullet, collision;
+            for (b in this.heroBullets) {
+                bullet = this.heroBullets[b];
+                collision = ndgmr.checkPixelCollision(this.boss, bullet);
+                if (collision) {
+                    this.boss.takeDamage();
+                    bullet.shouldDie = true;
+                }
+            }
+        }        
     }
     p.checkEnemyBullets = function () {
         var b, bullet, collision;
@@ -404,6 +491,26 @@
         this.addChild(enemy);
         this.enemies.push(enemy);
     }
+    p.spawnBossShip = function () {
+        if (this.nextBossShip < 4) {
+            this.boss = new game.BossShip(this.nextBossShip);
+            this.boss.y = -this.boss.getBounds().height;
+            this.boss.x = Utils.getRandomNumber(this.boss.getBounds().width, screen_width - this.boss.getBounds().width);
+            this.addChild(this.boss);
+            createjs.Tween.get(this.boss).to({y:150}, 2000);
+            createjs.Tween.get(this.boss).to({x:150}, 2000);
+            this.boss.nextX = this.boss.x;
+            this.boss.nextY = this.boss.y;
+        }        
+    }
+    p.spawnBossBullet = function (boss) {
+        var bullet = this.enemyBulletPool.getSprite();
+        bullet.currentAnimationFrame = 1;
+        bullet.y = boss.y;
+        bullet.x = boss.x;
+        this.addChildAt(bullet, 0);
+        this.enemyBullets.push(bullet);
+    }
     p.spawnEnemyBullet = function (enemy) {
         var bullet = this.enemyBulletPool.getSprite();
         bullet.currentAnimationFrame = 1;
@@ -443,6 +550,7 @@
         this.updateStars();
         this.updateHeroShip()
         this.updateEnemies();
+        this.updateBoss();
         this.updateHeroBullets();
         this.updateEnemyBullets();
     }
@@ -450,6 +558,7 @@
         this.renderStars();
         this.renderHeroShip();
         this.renderEnemies();
+        this.renderBoss();
         this.renderHeroBullets();
         this.renderEnemyBullets();
     }
@@ -459,8 +568,11 @@
             this.update();
             this.render();
             this.checkForEnemySpawn(tickEvent.time);
+            this.checkForBossSpawn(tickEvent.time);
             this.checkForEnemyFire(tickEvent.time);
+            this.checkForBossFire(tickEvent.time);
             this.checkHeroBullets();
+            this.checkHeroBulletsBoss();
             if (!this.heroShip.invincible) {
                 this.checkEnemyBullets();
                 this.checkShips();
