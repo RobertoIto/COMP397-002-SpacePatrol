@@ -71,7 +71,7 @@
         var numStars = 20;
         for (i = 0; i < numStars; i++) {
             //star = new createjs.Sprite(spritesheet, 'star3');
-            star = new createjs.Sprite(spritesheet, 'life');
+            star = new createjs.Sprite(spritesheet, 'star');
             star.speed = Utils.getRandomNumber(100, 200);
             star.x = Math.random() * screen_width;
             star.y = Math.random() * screen_height;

@@ -41,13 +41,13 @@
         var me = this;
         playBtn = new ui.SimpleButton('Play Again');
         playBtn.on('click', this.playAgain, this);
-        playBtn.setButton({upColor:'#d2354c', color:'#FFF', borderColor:'#FFF', overColor:'#900'});
+        playBtn.setButton({upColor:'#66ff66', color:'#FFF', borderColor:'#FFF', overColor:'#009933'});
         playBtn.x = playBtnPoint.x;
         playBtn.y = playBtnPoint.y;
         this.addChild(playBtn);
         menuBtn = new ui.SimpleButton('Main Menu');
         menuBtn.on('click', this.mainMenu, this);
-        menuBtn.setButton({upColor:'#d2354c', color:'#FFF', borderColor:'#FFF', overColor:'#900'});
+        menuBtn.setButton({upColor:'#66ff66', color:'#FFF', borderColor:'#FFF', overColor:'#009933'});
         menuBtn.x = menuBtnPoint.x;
         menuBtn.y = menuBtnPoint.y;
         this.addChild(menuBtn);

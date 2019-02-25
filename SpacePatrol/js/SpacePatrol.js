@@ -27,7 +27,7 @@
         this.preloadAssets()
     }
     p.preloadAssets = function () {
-        this.preloader = new ui.Preloader('#d2354c', '#FFF');
+        this.preloader = new ui.Preloader('#66ff66', '#FFF');
         this.preloader.x = (canvas.width / 2) - (this.preloader.width / 2);
         this.preloader.y = (canvas.height / 2) - (this.preloader.height / 2);
         stage.addChild(this.preloader);

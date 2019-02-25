@@ -18,7 +18,7 @@
         title.regX = title.getBounds().width / 2;
         title.x = screen_width / 2;
         title.y = -50;
-        createjs.Tween.get(title).to({y: titleYPos}, 5000)
+        createjs.Tween.get(title).to({y: titleYPos}, 2000)
             .call(this.bringTitle, null, this);
         this.addChild(title);
     }
@@ -29,7 +29,7 @@
         this.playBtn.x = canvas.width / 2;
         this.playBtn.y = 400;
         this.playBtn.alpha = 0;
-        this.playBtn.setButton({upColor: '#d2354c', color: '#FFF', borderColor: '#FFF', overColor: '#900'});
+        this.playBtn.setButton({upColor: '#66ff66', color: '#FFF', borderColor: '#FFF', overColor: '#009933'});
         this.addChild(this.playBtn);
     }
     p.bringTitle = function (e) {
