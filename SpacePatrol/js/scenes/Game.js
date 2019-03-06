@@ -26,7 +26,7 @@
     // Bosses
     p.boss = null;
     p.bossLastSpawnTime = 0;
-    p.bossSpawnWaiter = 60000;//10000;
+    p.bossSpawnWaiter = 10000;//10000;
     p.nextBossShip = 0;
 
     // SPRITES
@@ -452,6 +452,13 @@
                 }
             }
         }
+
+        if (this.boss != null){
+            collision = ndgmr.checkPixelCollision(this.heroShip, this.boss);
+            if (collision) {
+                this.heroShip.shouldDie = true;
+            }
+        }
     }
     p.checkHealth = function (e) {
         if (this.healthMeter.empty) {
@@ -466,10 +473,16 @@
             this.betweenLevels = true;
         }
     }
+    p.checkBoss = function () {
+        if ((this.boss != null) && (this.boss.shouldDie)) {
+            this.boss.explode();
+            this.spawnEnemyExplosion(this.boss.x, this.boss.y);
+        }
+    }
     p.checkGame = function (e) {
         if (this.numLives > 0) {
             this.heroShip.reset();
-            //this.heroShip.makeInvincible(true);
+            this.heroShip.makeInvincible(true);
             this.healthMeter.reset();
             this.betweenLevels = false;
         }
@@ -579,6 +592,7 @@
             }
             this.checkHealth();
             this.checkHero();
+            this.checkBoss();
         }
     }
     p.dispose = function () {
