@@ -31,6 +31,13 @@
     p.bossSpawnWaiter = 10000;//10000;
     p.nextBossShip = 0;
 
+    // Meteors
+    p.meteorPool = null;
+    p.meteor = null;
+    p.meteorLastSpawnTime = null;
+    p.meteorSpawnWaiter = 3000;
+
+    
     // SPRITES
     p.stars = null;
     p.explosionPool = null;
@@ -78,6 +85,9 @@
         this.enemyLastSpawnTime = 0;
         this.bossLastSpawnTime = 0;
         this.nextBossShip = 0;
+        this.meteorPool = [];
+        this.meteors = [];
+        this.meteorLastSpawnTime = 0;
     }
     p.buildStarField = function () {
         var star;
@@ -101,6 +111,7 @@
         this.heroMissilePool = new game.SpritePool(game.Missile, 7);
         this.enemyBulletPool = new game.SpritePool(game.Bullet, 20);
         this.enemyPool = new game.SpritePool(game.EnemyShip, 10);
+        this.meteorPool = new game.SpritePool(game.Meteor, 10);
         this.explosionPool = new game.SpritePool(game.Explosion, 10);
         this.healthMeter = new game.HealthMeter();
         this.scoreboard = new game.Scoreboard();
@@ -205,6 +216,21 @@
         }
         this.heroShip.nextX = nextX;
         this.heroShip.nextY = nextY;
+    }
+    p.updateMeteors = function () {
+        var meteor, i, velY;
+        var len = this.meteors.length - 1;
+        for (i = len; i >= 0; i--) {
+            meteor = this.meteors[i];
+            velY = meteor.speed * this.delta / 1000;
+            meteor.nextY = meteor.y + velY;
+            if (meteor.nextY > screen_height) {
+                meteor.reset();
+                this.meteorPool.returnSprite(meteor);
+                this.removeChild(meteor);
+                this.meteors.splice(i, 1);
+            }
+        }
     }
     p.updateEnemies = function () {
         var enemy, i, velY;
@@ -336,6 +362,25 @@
             }
         }
     }
+    p.renderMeteors = function () {
+        var meteor, i;
+        var len = this.meteors.length - 1;
+        for (i = len; i >= 0; i--) {
+            meteor = this.meteors[i];
+            if (meteor.shouldDie) {
+                this.scoreboard.updateScore(meteor.points);
+                this.meteors.splice(i, 1);
+                this.removeChild(meteor);
+                this.spawnEnemyExplosion(meteor.x, meteor.y);
+                this.spawnCollectMissile(meteor.x, meteor.y);
+                meteor.reset();
+                this.meteorPool.returnSprite(meteor);                
+            }
+            else {
+                meteor.y = meteor.nextY;
+            }
+        }
+    }
     p.renderEnemies = function () {
         var enemy, i;
         var len = this.enemies.length - 1;
@@ -375,6 +420,12 @@
      * CHECK FUNCTIONS
      *
      */
+    p.checkForMeteorSpawn = function (time) {
+        if (time - this.meteorLastSpawnTime > this.meteorSpawnWaiter) {
+            this.spawnMeteor();
+            this.meteorLastSpawnTime = time;
+        }
+    }
     p.checkForEnemySpawn = function (time) {
         if (time - this.enemyLastSpawnTime > this.enemySpawnWaiter) {
             this.spawnEnemyShip();
@@ -442,6 +493,20 @@
             }
         }        
     }
+    p.checkHeroBulletsMeteor = function () {
+        var i, b, bullet, meteor, collision;
+        for (i in this.meteors) {
+            meteor = this.meteors[i];
+            for (b in this.heroBullets) {
+                bullet = this.heroBullets[b];
+                collision = ndgmr.checkPixelCollision(meteor, bullet);
+                if (collision) {
+                    meteor.takeDamage(p.heroBulletType);
+                    bullet.shouldDie = true;
+                }
+            }
+        }
+    }
     p.checkEnemyBullets = function () {
         var b, bullet, collision;
         for (b in this.enemyBullets) {
@@ -456,8 +521,8 @@
         }
     }
     p.checkShips = function () {
-        var enemy, i;
-        var len = this.enemies.length - 1;
+        var enemy, i, len, meteor;
+        len = this.enemies.length - 1;
         for (i = len; i >= 0; i--) {
             enemy = this.enemies[i];
             if (enemy.y > screen_height / 2) {
@@ -466,6 +531,21 @@
                     this.removeChild(enemy);
                     this.enemies.splice(i, 1);
                     this.spawnEnemyExplosion(enemy.x, enemy.y);
+                    this.heroShip.shouldDie = true;
+                    break;
+                }
+            }
+        }
+
+        len = this.meteors.length - 1;
+        for (i = len; i >= 0; i--) {
+            meteor = this.meteors[i];
+            if (meteor.y > screen_height / 2) {
+                collision = ndgmr.checkPixelCollision(this.heroShip, meteor);
+                if (collision) {
+                    this.removeChild(meteor);
+                    this.meteors.splice(i, 1);
+                    this.spawnEnemyExplosion(meteor.x, meteor.y);
                     this.heroShip.shouldDie = true;
                     break;
                 }
@@ -549,13 +629,20 @@
 
         this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
         this.heroMissilePool = new game.SpritePool(game.Missile, 10);
-        this.heroBullets.empty();
+        //this.heroBullets.empty();
     } 
     /*
      *
      * SPAWN FUNCTION
      *
      */
+    p.spawnMeteor = function () {
+        var meteor = this.meteorPool.getSprite();
+        meteor.y = -meteor.getBounds().height;
+        meteor.x = Utils.getRandomNumber(meteor.getBounds().width, screen_width - meteor.getBounds().width);
+        this.addChild(meteor);
+        this.meteors.push(meteor);
+    }
     p.spawnEnemyShip = function () {
         var enemy = this.enemyPool.getSprite();
         enemy.y = -enemy.getBounds().height;
@@ -639,6 +726,7 @@
     p.update = function () {
         this.updateStars();
         this.updateHeroShip()
+        this.updateMeteors();
         this.updateEnemies();
         this.updateBoss();
         this.updateHeroBullets();
@@ -647,6 +735,7 @@
     p.render = function () {
         this.renderStars();
         this.renderHeroShip();
+        this.renderMeteors();
         this.renderEnemies();
         this.renderBoss();
         this.renderHeroBullets();
@@ -657,12 +746,14 @@
         if (!this.betweenLevels) {
             this.update();
             this.render();
+            //this.checkForMeteorSpawn(tickEvent.time);
             this.checkForEnemySpawn(tickEvent.time);
             this.checkForBossSpawn(tickEvent.time);
             this.checkForEnemyFire(tickEvent.time);
             this.checkForBossFire(tickEvent.time);
             this.checkHeroBullets();
             this.checkHeroBulletsBoss();
+            this.checkHeroBulletsMeteor();
             if (!this.heroShip.invincible) {
                 this.checkEnemyBullets();
                 this.checkShips();
