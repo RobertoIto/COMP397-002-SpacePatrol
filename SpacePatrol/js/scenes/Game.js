@@ -238,8 +238,17 @@
         for (i = len; i >= 0; i--) {
             enemy = this.enemies[i];
             velY = enemy.speed * this.delta / 1000;
-            enemy.nextY = enemy.y + velY;
-            if (enemy.nextY > screen_height) {
+            enemy.nextY = enemy.y + velY / 1.5;
+
+            if (enemy.nextX < (screen_width - enemy.regX)) {
+
+                enemy.nextX = enemy.x + velY;
+            } else if (enemy.nextX > (screen_width - enemy.regX)) {
+                enemy.nextX = enemy.x - velY;
+            }
+
+
+            if (enemy.nextX > (screen_height - enemy.regX)) {
                 enemy.reset();
                 this.enemyPool.returnSprite(enemy);
                 this.removeChild(enemy);
@@ -388,6 +397,7 @@
                 enemy.reset();
                 this.enemyPool.returnSprite(enemy);
             } else {
+                enemy.x = enemy.nextX;
                 enemy.y = enemy.nextY;
             }
         }
@@ -429,9 +439,9 @@
             (this.boss == null)) {
             this.nextBossShip += 1;
             this.spawnBossShip(this.nextBossShip);
-            
+
             //this.bossLastSpawnTime = time;
-        } 
+        }
         //else if (this.boss != null) {
         //    this.bossLastSpawnTime = time;
         //}
@@ -637,8 +647,9 @@
     }
     p.spawnEnemyShip = function() {
         var enemy = this.enemyPool.getSprite();
-        enemy.y = -enemy.getBounds().height;
-        enemy.x = Utils.getRandomNumber(enemy.getBounds().width, screen_width - enemy.getBounds().width);
+        enemy.y = enemy.getBounds().height;
+        //enemy.x = Utils.getRandomNumber(enemy.getBounds().width, screen_width - enemy.getBounds().width);
+        enemy.x = 0;
         this.addChild(enemy);
         this.enemies.push(enemy);
     }
@@ -697,23 +708,23 @@
         this.explosionPool.returnSprite(explosion);
     }
     p.spawnCollectMissile = function(x, y) {
-        if ((p.collectMissile == null) && (p.heroBulletType == 1)) {
-            var num = Utils.getRandomNumber(0, 5) + 1;
-            num = 2;
-            if (num == 1) {
-                p.collectMissile = new game.Missile();
-                p.collectMissile.x = x;
-                p.collectMissile.y = y;
-                this.addChild(p.collectMissile);
-                p.collectMissileTime = 1;
+            if ((p.collectMissile == null) && (p.heroBulletType == 1)) {
+                var num = Utils.getRandomNumber(0, 5) + 1;
+                num = 2;
+                if (num == 1) {
+                    p.collectMissile = new game.Missile();
+                    p.collectMissile.x = x;
+                    p.collectMissile.y = y;
+                    this.addChild(p.collectMissile);
+                    p.collectMissileTime = 1;
+                }
             }
         }
-    }
-    /*
-    *
-    * GAME LOOP
-    *
-    */
+        /*
+         *
+         * GAME LOOP
+         *
+         */
     p.update = function() {
         this.updateStars();
         this.updateHeroShip()
