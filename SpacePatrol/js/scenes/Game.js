@@ -28,7 +28,8 @@
     // Bosses
     p.boss = null;
     p.bossLastSpawnTime = 0;
-    p.bossSpawnWaiter = 10000; //10000;
+    p.bossLastSpawnPoints = 0;
+    p.bossSpawnWaiter = 400; //10000;
     p.nextBossShip = 0;
 
     // Meteors
@@ -423,14 +424,17 @@
         }
     }
     p.checkForBossSpawn = function(time) {
-        if ((time - this.bossLastSpawnTime > this.bossSpawnWaiter) &&
+        //if ((time - this.bossLastSpawnTime > this.bossSpawnWaiter) &&
+        if ((this.scoreboard.score - this.bossLastSpawnPoints > this.bossSpawnWaiter) &&
             (this.boss == null)) {
             this.nextBossShip += 1;
             this.spawnBossShip(this.nextBossShip);
-            this.bossLastSpawnTime = time;
-        } else if (this.boss != null) {
-            this.bossLastSpawnTime = time;
-        }
+            
+            //this.bossLastSpawnTime = time;
+        } 
+        //else if (this.boss != null) {
+        //    this.bossLastSpawnTime = time;
+        //}
     }
     p.checkForBossFire = function(time) {
         if (this.boss != null) {
@@ -567,6 +571,7 @@
         if ((this.boss != null) && (this.boss.shouldDie)) {
             this.boss.explode();
             this.spawnEnemyExplosion(this.boss.x, this.boss.y);
+            this.bossLastSpawnPoints = this.scoreboard.score;
         }
     }
     p.checkGame = function(e) {
@@ -692,23 +697,23 @@
         this.explosionPool.returnSprite(explosion);
     }
     p.spawnCollectMissile = function(x, y) {
-            if ((p.collectMissile == null) && (p.heroBulletType == 1)) {
-                var num = Utils.getRandomNumber(0, 5) + 1;
-                num = 2;
-                if (num == 1) {
-                    p.collectMissile = new game.Missile();
-                    p.collectMissile.x = x;
-                    p.collectMissile.y = y;
-                    this.addChild(p.collectMissile);
-                    p.collectMissileTime = 1;
-                }
+        if ((p.collectMissile == null) && (p.heroBulletType == 1)) {
+            var num = Utils.getRandomNumber(0, 5) + 1;
+            num = 2;
+            if (num == 1) {
+                p.collectMissile = new game.Missile();
+                p.collectMissile.x = x;
+                p.collectMissile.y = y;
+                this.addChild(p.collectMissile);
+                p.collectMissileTime = 1;
             }
         }
-        /*
-         *
-         * GAME LOOP
-         *
-         */
+    }
+    /*
+    *
+    * GAME LOOP
+    *
+    */
     p.update = function() {
         this.updateStars();
         this.updateHeroShip()

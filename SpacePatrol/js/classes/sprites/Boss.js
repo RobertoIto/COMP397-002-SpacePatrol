@@ -30,7 +30,8 @@
     p.initialize = function (type) {
         this.type = type;
         this.HP = 20 * this.type;        
-        this.points = 1000 * this.type;
+        //this.points = 1000 * this.type;
+        this.points = 100 * this.type;
         this.velx = 2 + this.type;
         this.vely = 2 + this.type;
 
