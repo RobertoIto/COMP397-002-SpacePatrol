@@ -70,7 +70,7 @@
         this.buildSprites();
         this.setWalls();
         this.setControls();
-        createjs.Sound.play(game.assets.SOUNDTRACK);
+        createjs.Sound.play(game.assets.SOUNDTRACK1);
     }
     p.setProperties = function() {
         this.heroBulletPool = [];
@@ -694,6 +694,7 @@
         bullet.y = this.heroShip.y - this.heroShip.getBounds().height / 2;
         this.addChildAt(bullet, 0);
         this.heroBullets.push(bullet);
+        createjs.Sound.play(game.assets.BULLET);
     }
     p.spawnEnemyExplosion = function(x, y) {
         var explosion = this.explosionPool.getSprite();

@@ -70,7 +70,7 @@
         this.buildSprites();
         this.setWalls();
         this.setControls();
-        createjs.Sound.play(game.assets.SOUNDTRACK);
+        createjs.Sound.play(game.assets.SOUNDTRACK3);
     }
     p.setProperties = function() {
         this.heroBulletPool = [];

@@ -89,6 +89,7 @@
         }
     }
     p.gameStateMainMenu = function(tickEvent) {
+        createjs.Sound.stop();
         var scene = new game.GameMenu();
         scene.on(game.GameStateEvents.GAME, this.onStateEvent, this, true, { state: game.GameStates.GAME });
         stage.addChild(scene);
@@ -98,6 +99,7 @@
     }
 
     p.gameStateGame = function(tickEvent) {
+        createjs.Sound.stop();
         var scene = new game.Game();
         scene.on(game.GameStateEvents.LEVEL_2, this.onStateEvent, this, true, { state: game.GameStates.LEVEL_2 });
         scene.on(game.GameStateEvents.GAME_OVER, this.onStateEvent, this, true, { state: game.GameStates.GAME_OVER });
@@ -107,6 +109,7 @@
         this.changeState(game.GameStates.RUN_SCENE);
     }
     p.gameStateLevel2 = function(tickEvent) {
+        createjs.Sound.stop();
         var scene = new game.Level2();
         scene.on(game.GameStateEvents.LEVEL_3, this.onStateEvent, this, true, { state: game.GameStates.LEVEL_3 });
         scene.on(game.GameStateEvents.GAME_OVER, this.onStateEvent, this, true, { state: game.GameStates.GAME_OVER });
@@ -117,6 +120,7 @@
     }
 
     p.gameStateLevel3 = function(tickEvent) {
+        createjs.Sound.stop();
         var scene = new game.Level3();
         scene.on(game.GameStateEvents.GAME_OVER, this.onStateEvent, this, true, { state: game.GameStates.GAME_OVER });
         stage.addChild(scene);
@@ -126,6 +130,7 @@
     }
 
     p.gameStateGameOver = function(tickEvent) {
+        createjs.Sound.stop();
         var scene = new game.GameOver();
         stage.addChild(scene);
         scene.on(game.GameStateEvents.MAIN_MENU, this.onStateEvent, this, true, { state: game.GameStates.MAIN_MENU });
