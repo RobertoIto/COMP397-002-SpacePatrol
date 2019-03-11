@@ -32,9 +32,9 @@
         this.regY = this.getBounds().height / 2;
 
     }
-    p.takeDamage = function () {
+    p.takeDamage = function (damage) {
         this.gotoAndPlay("enemy" + this.type + "Hit");
-        this.HP--;
+        this.HP = this.HP - damage;
         if (this.HP <= 0) {
             this.shouldDie = true;
         }

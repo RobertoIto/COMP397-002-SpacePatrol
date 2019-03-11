@@ -13,7 +13,9 @@
     // Hero
     p.heroShip = null;
     p.heroBulletPool = null;
+    p.heroMissilePool = null;
     p.heroBullets = null;
+    p.heroBulletType = 1;
 
     // Enemies
     p.enemyPool = null;
@@ -35,6 +37,8 @@
     p.healthMeter = null;
     p.lifeBox = null;
     p.scoreboard = null;
+    p.collectMissile = null;
+    p.collectMissileTime = 0; 
 
     //
     p.leftWall = null;
@@ -62,6 +66,7 @@
     }
     p.setProperties = function () {
         this.heroBulletPool = [];
+        this.heroMissilePool = [];
         this.heroBullets = [];
         this.enemyPool = [];
         this.enemies = [];
@@ -93,6 +98,7 @@
         this.heroShip.x = screen_width / 2;
         this.heroShip.y = screen_height - this.heroShip.getBounds().height;
         this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
+        this.heroMissilePool = new game.SpritePool(game.Missile, 7);
         this.enemyBulletPool = new game.SpritePool(game.Bullet, 20);
         this.enemyPool = new game.SpritePool(game.EnemyShip, 10);
         this.explosionPool = new game.SpritePool(game.Explosion, 10);
@@ -250,7 +256,13 @@
             velY = bullet.speed * this.delta / 1000;
             bullet.nextY = bullet.y - velY;
             if (bullet.nextY < 0) {
-                this.heroBulletPool.returnSprite(bullet);
+                //this.heroBulletPool.returnSprite(bullet);                
+                if ((p.heroBulletType == 1) && (bullet instanceof game.Bullet)) {
+                    this.heroBulletPool.returnSprite(bullet);                
+                }
+                else if ((p.heroBulletType == 2) && (bullet instanceof game.Missile)) {
+                    this.heroMissilePool.returnSprite(bullet);
+                }
                 this.removeChild(bullet);
                 this.heroBullets.splice(i, 1);
             }
@@ -294,7 +306,13 @@
             if (bullet.shouldDie) {
                 this.removeChild(bullet);
                 bullet.reset();
-                this.heroBulletPool.returnSprite(bullet);
+                //this.heroBulletPool.returnSprite(bullet);
+                if ((p.heroBulletType == 1) && (bullet instanceof game.Bullet)) {
+                    this.heroBulletPool.returnSprite(bullet);                
+                }
+                else if ((p.heroBulletType == 2) && (bullet instanceof game.Missile)) {
+                    this.heroMissilePool.returnSprite(bullet);
+                }
                 this.heroBullets.splice(i, 1);
             }
             else {
@@ -328,8 +346,9 @@
                 this.enemies.splice(i, 1);
                 this.removeChild(enemy);
                 this.spawnEnemyExplosion(enemy.x, enemy.y);
+                this.spawnCollectMissile(enemy.x, enemy.y);
                 enemy.reset();
-                this.enemyPool.returnSprite(enemy);
+                this.enemyPool.returnSprite(enemy);                
             }
             else {
                 enemy.y = enemy.nextY;
@@ -404,7 +423,7 @@
                 bullet = this.heroBullets[b];
                 collision = ndgmr.checkPixelCollision(enemy, bullet);
                 if (collision) {
-                    enemy.takeDamage();
+                    enemy.takeDamage(p.heroBulletType);
                     bullet.shouldDie = true;
                 }
             }
@@ -417,7 +436,7 @@
                 bullet = this.heroBullets[b];
                 collision = ndgmr.checkPixelCollision(this.boss, bullet);
                 if (collision) {
-                    this.boss.takeDamage();
+                    this.boss.takeDamage(p.heroBulletType);
                     bullet.shouldDie = true;
                 }
             }
@@ -467,10 +486,12 @@
     }
     p.checkHero = function () {
         if (this.heroShip.shouldDie) {
+            p.heroBulletType = 1;            
             this.numLives--;
             this.heroShip.explode();
             this.lifeBox.removeLife();
             this.betweenLevels = true;
+            this.deleteHeroBullets();
         }
     }
     p.checkBoss = function () {
@@ -492,6 +513,44 @@
             this.dispatchEvent(game.GameStateEvents.GAME_OVER);
         }
     }
+    p.checkCollectMissile = function (){
+        // Verify the lifetime of the collectible missile in the stage
+        if (p.collectMissile != null) {
+            if (p.collectMissileTime <= 300){
+                p.collectMissileTime += 1;
+            }
+            else{
+                this.removeChild(p.collectMissile);
+                p.collectMissile = null;
+                p.collectMissileTime = 0;
+            }
+            
+        }
+        // Verify the collision of the player and the collectible missile
+        if (p.collectMissile != null){
+            collision = ndgmr.checkPixelCollision(this.heroShip, p.collectMissile);
+            if (collision) {
+                p.heroBulletType = 2;
+                this.removeChild(p.collectMissile);
+                p.collectMissile = null;
+                this.heroShip.makeInvincible(true);
+                p.deleteHeroBullets();
+            }
+        }
+    }
+    p.deleteHeroBullets = function (){
+        var b, bullet;
+        for (b in this.heroBullets) {
+            bullet = this.heroBullets[b];
+            this.removeChild(bullet);
+            bullet.reset();
+            this.heroBullets.splice(i, 1);
+        }
+
+        this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
+        this.heroMissilePool = new game.SpritePool(game.Missile, 10);
+        this.heroBullets.empty();
+    } 
     /*
      *
      * SPAWN FUNCTION
@@ -533,11 +592,17 @@
         this.enemyBullets.push(bullet);
     }
     p.spawnHeroBullet = function () {
-        var bullet = this.heroBulletPool.getSprite();
+        var bullet;
+        if (p.heroBulletType == 1){
+            bullet = this.heroBulletPool.getSprite();        
+        }
+        else{
+            bullet = this.heroMissilePool.getSprite();        
+        }
         bullet.x = this.heroShip.x;
         bullet.y = this.heroShip.y - this.heroShip.getBounds().height / 2;
         this.addChildAt(bullet, 0);
-        this.heroBullets.push(bullet)
+        this.heroBullets.push(bullet);
     }
     p.spawnEnemyExplosion = function (x, y) {
         var explosion = this.explosionPool.getSprite();
@@ -553,7 +618,19 @@
         this.removeChild(explosion);
         this.explosionPool.returnSprite(explosion);
     }
-
+    p.spawnCollectMissile = function (x, y) {
+        if ((p.collectMissile == null) && (p.heroBulletType == 1)){            
+            var num = Utils.getRandomNumber(0, 5) + 1;
+            num = 2;
+            if (num == 1) {
+                p.collectMissile = new game.Missile();
+                p.collectMissile.x = x;
+                p.collectMissile.y = y;
+                this.addChild(p.collectMissile);
+                p.collectMissileTime = 1;
+            }
+        }        
+    }
     /*
      *
      * GAME LOOP
@@ -593,6 +670,7 @@
             this.checkHealth();
             this.checkHero();
             this.checkBoss();
+            this.checkCollectMissile();
         }
     }
     p.dispose = function () {
