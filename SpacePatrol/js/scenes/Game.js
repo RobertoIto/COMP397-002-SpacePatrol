@@ -93,8 +93,8 @@
         var star, alpha;
         var numStars = 20;
         for (i = 0; i < numStars; i++) {
-            //star = new createjs.Sprite(spritesheet, 'star3');
-            star = new createjs.Sprite(spritesheet, 'star');
+            star = new createjs.Shape();
+            star.graphics.beginFill("#FFF").drawCircle(0, 0, 2);
             star.speed = Utils.getRandomNumber(100, 200);
             star.x = Math.random() * screen_width;
             star.y = Math.random() * screen_height;
