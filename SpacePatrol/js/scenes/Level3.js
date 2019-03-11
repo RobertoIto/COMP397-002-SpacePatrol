@@ -2,11 +2,11 @@
 
     window.game = window.game || {}
 
-    function Game() {
+    function Level3() {
         this.initialize();
     }
 
-    var p = Game.prototype = new createjs.Container();
+    var p = Level3.prototype = new createjs.Container();
 
     p.Container_initialize = p.initialize;
 
@@ -95,7 +95,7 @@
         var numStars = 20;
         for (i = 0; i < numStars; i++) {
             star = new createjs.Shape();
-            star.graphics.beginFill("#FFFFFF").drawCircle(0, 0, 2);
+            star.graphics.beginFill("#9999FF").drawCircle(0, 0, 2);
             star.speed = Utils.getRandomNumber(100, 200);
             star.x = Math.random() * screen_width;
             star.y = Math.random() * screen_height;
@@ -582,8 +582,7 @@
             this.boss.explode();
             this.spawnEnemyExplosion(this.boss.x, this.boss.y);
             this.bossLastSpawnPoints = this.scoreboard.score;
-            this.dispose();
-            this.dispatchEvent(game.GameStateEvents.LEVEL_2);
+            //update congrats message for player here
         }
     }
     p.checkGame = function(e) {
@@ -772,6 +771,6 @@
         document.onkeydown = null;
         document.onkeyup = null;
     }
-    window.game.Game = Game;
+    window.game.Level3 = Level3;
 
 }(window));
