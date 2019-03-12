@@ -238,17 +238,15 @@
         for (i = len; i >= 0; i--) {
             enemy = this.enemies[i];
             velY = enemy.speed * this.delta / 1000;
-            enemy.nextY = enemy.y + velY / 1.5;
+            enemy.nextY = enemy.y + velY / 3;
 
-            if (enemy.nextX < (screen_width - enemy.regX)) {
-
-                enemy.nextX = enemy.x + velY;
-            } else if (enemy.nextX > (screen_width - enemy.regX)) {
+            if (enemy.nextX > enemy.regX) {
                 enemy.nextX = enemy.x - velY;
+            } else if (enemy.nextX < enemy.regX) {
+                enemy.nextX = enemy.x + velY;
             }
 
-
-            if (enemy.nextX > (screen_height - enemy.regX)) {
+            if (enemy.nextX < enemy.regX) {
                 enemy.reset();
                 this.enemyPool.returnSprite(enemy);
                 this.removeChild(enemy);
@@ -437,7 +435,7 @@
         //if ((time - this.bossLastSpawnTime > this.bossSpawnWaiter) &&
         if ((this.scoreboard.score - this.bossLastSpawnPoints > this.bossSpawnWaiter) &&
             (this.boss == null)) {
-            this.nextBossShip += 1;
+            this.nextBossShip = 2;
             this.spawnBossShip(this.nextBossShip);
 
             //this.bossLastSpawnTime = time;
@@ -650,7 +648,7 @@
         var enemy = this.enemyPool.getSprite();
         enemy.y = enemy.getBounds().height;
         //enemy.x = Utils.getRandomNumber(enemy.getBounds().width, screen_width - enemy.getBounds().width);
-        enemy.x = 0;
+        enemy.x = screen_width;
         this.addChild(enemy);
         this.enemies.push(enemy);
     }

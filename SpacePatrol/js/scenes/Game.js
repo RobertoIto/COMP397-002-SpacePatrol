@@ -238,7 +238,7 @@
         for (i = len; i >= 0; i--) {
             enemy = this.enemies[i];
             velY = enemy.speed * this.delta / 1000;
-            enemy.nextY = enemy.y + velY / 1.5;
+            enemy.nextY = enemy.y + velY / 3;
 
             if (enemy.nextX < (screen_width - enemy.regX)) {
 

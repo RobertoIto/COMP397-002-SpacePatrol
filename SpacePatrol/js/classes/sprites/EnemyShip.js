@@ -17,8 +17,8 @@
     p.fireDelay = 2000;
 
     p.speed = 150;
-    p.nextY = 0;
-    p.nextX = 0;
+    p.nextY = null;
+    p.nextX = null;
     p.shouldDie = false;
 
     p.initialize = function(startX) {

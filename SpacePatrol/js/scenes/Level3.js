@@ -235,13 +235,20 @@
     p.updateEnemies = function() {
         var enemy, i, velY;
         var len = this.enemies.length - 1;
+        var moveDown = true;
         for (i = len; i >= 0; i--) {
             enemy = this.enemies[i];
             velY = enemy.speed * this.delta / 1000;
-            enemy.nextY = enemy.y + velY / 1.5;
+            if (moveDown) {
+                enemy.nextY = enemy.y + velY;
+                if (enemy.nextY > 200) {
+                    moveDown = false;
+                }
+            } else {
+                enemy.nextY = enemy.y - velY;
+            }
 
             if (enemy.nextX < (screen_width - enemy.regX)) {
-
                 enemy.nextX = enemy.x + velY;
             } else if (enemy.nextX > (screen_width - enemy.regX)) {
                 enemy.nextX = enemy.x - velY;
@@ -254,6 +261,7 @@
                 this.removeChild(enemy);
                 this.enemies.splice(i, 1);
             }
+
         }
     }
     p.updateBoss = function() {
@@ -437,7 +445,7 @@
         //if ((time - this.bossLastSpawnTime > this.bossSpawnWaiter) &&
         if ((this.scoreboard.score - this.bossLastSpawnPoints > this.bossSpawnWaiter) &&
             (this.boss == null)) {
-            this.nextBossShip += 1;
+            this.nextBossShip = 3;
             this.spawnBossShip(this.nextBossShip);
 
             //this.bossLastSpawnTime = time;
