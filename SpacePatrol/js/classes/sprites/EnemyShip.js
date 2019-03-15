@@ -27,8 +27,7 @@
         //this.HP = this.type * 3;
         this.HP = this.type;
 
-        //this.points = this.type * 10;
-        this.points = 200;
+        this.points = this.type * 100;
         this.Sprite_initialize(spritesheet, "enemy" + this.type + "Idle");
         this.regX = this.getBounds().width / 2;
         this.regY = this.getBounds().height / 2;

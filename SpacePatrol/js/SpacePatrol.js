@@ -68,12 +68,6 @@
             case game.GameStates.GAME_OVER:
                 this.currentGameStateFunction = this.gameStateGameOver;
                 break;
-            case game.GameStates.LEVEL_2:
-                this.currentGameStateFunction = this.gameStateLevel2;
-                break;
-            case game.GameStates.LEVEL_3:
-                this.currentGameStateFunction = this.gameStateLevel3;
-                break;
         }
     }
     p.onStateEvent = function(e, obj) {
