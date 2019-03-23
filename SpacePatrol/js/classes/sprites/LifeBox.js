@@ -33,16 +33,13 @@
         this.x = screen_width - this.getBounds().width;
         this.y = screen_height - this.getBounds().height;
     }
-    p.removeLife = function (numberOfLives) {
-        var i;
-        for(i =0; i<numberOfLives;i++){
-            var life = this.getChildAt(0);
-            life.on('animationend', function (e) {
-                e.target.stop();
-                this.removeChild(e.target);
-            }, this)
-            life.play();
-        }
+    p.removeLife = function () {
+        var life = this.getChildAt(0);
+        life.on('animationend', function (e) {
+            e.target.stop();
+            this.removeChild(e.target);
+        }, this)
+        life.play();
     }
 
     window.game.LifeBox = LifeBox;

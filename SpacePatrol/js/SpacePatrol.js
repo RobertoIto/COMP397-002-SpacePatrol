@@ -83,7 +83,6 @@
         }
     }
     p.gameStateMainMenu = function(tickEvent) {
-        createjs.Sound.stop();
         var scene = new game.GameMenu();
         scene.on(game.GameStateEvents.GAME, this.onStateEvent, this, true, { state: game.GameStates.GAME });
         stage.addChild(scene);
@@ -133,7 +132,6 @@
         this.currentScene = scene;
         this.changeState(game.GameStates.RUN_SCENE);
     }
-
     p.gameStateRunScene = function(tickEvent) {
         if (this.currentScene.run) {
             this.currentScene.run(tickEvent);

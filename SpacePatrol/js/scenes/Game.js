@@ -73,7 +73,7 @@
         this.buildSprites();
         this.setWalls();
         this.setControls();
-        createjs.Sound.play(game.assets.SOUNDTRACK1);
+        createjs.Sound.play(game.assets.SOUNDTRACK);
     }
     p.setProperties = function() {
         this.heroBulletPool = [];
@@ -97,8 +97,8 @@
         var star, alpha;
         var numStars = 20;
         for (i = 0; i < numStars; i++) {
-            star = new createjs.Shape();
-            star.graphics.beginFill("#FFFFFF").drawCircle(0, 0, 2);
+            //star = new createjs.Sprite(spritesheet, 'star3');
+            star = new createjs.Sprite(spritesheet, 'star');
             star.speed = Utils.getRandomNumber(100, 200);
             star.x = Math.random() * screen_width;
             star.y = Math.random() * screen_height;
@@ -458,7 +458,6 @@
                 enemy.reset();
                 this.enemyPool.returnSprite(enemy);
             } else {
-                enemy.x = enemy.nextX;
                 enemy.y = enemy.nextY;
             }
         }
@@ -633,7 +632,7 @@
             p.heroBulletType = 1;
             this.numLives--;
             this.heroShip.explode();
-            this.lifeBox.removeLife(1);
+            this.lifeBox.removeLife();
             this.betweenLevels = true;
             this.deleteHeroBullets();
         }
@@ -773,7 +772,6 @@
         bullet.y = this.heroShip.y - this.heroShip.getBounds().height / 2;
         this.addChildAt(bullet, 0);
         this.heroBullets.push(bullet);
-        createjs.Sound.play(game.assets.BULLET);
     }
     p.spawnEnemyExplosion = function(x, y) {
         var explosion = this.explosionPool.getSprite();
@@ -792,7 +790,7 @@
     p.spawnCollectMissile = function(x, y) {
         if ((p.collectMissile == null) && (p.heroBulletType == 1)) {
             var num = Utils.getRandomNumber(0, 5) + 1;
-            num = 2;
+            //num = 2;
             if (num == 1) {
                 p.collectMissile = new game.Missile();
                 p.collectMissile.x = x;
@@ -836,7 +834,7 @@
         if (!this.betweenLevels) {
             this.update();
             this.render();
-            //this.checkForMeteorSpawn(tickEvent.time);
+            this.checkForMeteorSpawn(tickEvent.time);
             this.checkForEnemySpawn(tickEvent.time);
             this.checkForBossSpawn(tickEvent.time);
             this.checkForEnemyFire(tickEvent.time);
