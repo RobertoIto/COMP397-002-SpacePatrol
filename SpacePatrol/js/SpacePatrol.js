@@ -68,6 +68,9 @@
             case game.GameStates.GAME_OVER:
                 this.currentGameStateFunction = this.gameStateGameOver;
                 break;
+            case game.GameStates.GAME_WIN:
+                this.currentGameStateFunction = this.gameStateGameWin;
+                break;
         }
     }
     p.onStateEvent = function (e, obj) {
@@ -92,6 +95,7 @@
     }
     p.gameStateGame = function (tickEvent) {
         var scene = new game.Game();
+        scene.on(game.GameStateEvents.GAME_WIN, this.onStateEvent, this, true, { state: game.GameStates.GAME_WIN});
         scene.on(game.GameStateEvents.GAME_OVER, this.onStateEvent, this, true, {state:game.GameStates.GAME_OVER});
         stage.addChild(scene);
         this.disposeCurrentScene()
@@ -103,6 +107,15 @@
         stage.addChild(scene);
         scene.on(game.GameStateEvents.MAIN_MENU, this.onStateEvent, this, true, {state:game.GameStates.MAIN_MENU});
         scene.on(game.GameStateEvents.GAME, this.onStateEvent, this, true, {state:game.GameStates.GAME});
+        this.disposeCurrentScene();
+        this.currentScene = scene;
+        this.changeState(game.GameStates.RUN_SCENE);
+    }
+    p.gameStateGameWin = function (tickEvent) {
+        var scene = new game.GameWin();
+        scene.on(game.GameStateEvents.MAIN_MENU, this.onStateEvent, this, true, {state:game.GameStates.MAIN_MENU});
+        scene.on(game.GameStateEvents.GAME, this.onStateEvent, this, true, {state:game.GameStates.GAME});
+        stage.addChild(scene);
         this.disposeCurrentScene();
         this.currentScene = scene;
         this.changeState(game.GameStates.RUN_SCENE);
