@@ -73,7 +73,7 @@
         this.buildSprites();
         this.setWalls();
         this.setControls();
-        createjs.Sound.play(game.assets.SOUNDTRACK);
+        // createjs.Sound.play(game.assets.SOUNDTRACK);
     }
     p.setProperties = function() {
         this.heroBulletPool = [];
@@ -96,17 +96,22 @@
     }
     p.buildStarField = function() {
         var star, alpha;
-        var numStars = 20;
+        var numStars = 200;
         for (i = 0; i < numStars; i++) {
             //star = new createjs.Sprite(spritesheet, 'star3');
-            star = new createjs.Sprite(spritesheet, 'star');
+            //star = new createjs.Sprite(spritesheet, 'star');
+            starSky = new createjs.Container();
+            star = new createjs.Shape();
             star.speed = Utils.getRandomNumber(100, 200);
             star.x = Math.random() * screen_width;
             star.y = Math.random() * screen_height;
             alpha = Math.random();
             star.alpha = alpha;
-            this.addChild(star);
+            star.graphics.beginFill("#FFF").drawCircle(0, 0, 1);
+
+            starSky.addChild(star);
             this.stars.push(star);
+            this.addChild(starSky);
         }
     }
     p.buildSprites = function() {
@@ -238,22 +243,21 @@
         }
     }
     p.updateEnemies = function() {
-        var enemy, i, velY;
-        var len = this.enemies.length - 1;
+
 
         switch (this.level) {
             case 1:
+                var enemy, i, velY;
+                var len = this.enemies.length - 1;
                 for (i = len; i >= 0; i--) {
                     enemy = this.enemies[i];
                     velY = enemy.speed * this.delta / 1000;
-
-                    enemy.nextY = enemy.y + velY / 3;
+                    enemy.nextY = enemy.y + velY;
                     if (enemy.nextX < (screen_width - enemy.regX)) {
                         enemy.nextX = enemy.x + velY;
                     } else if (enemy.nextX > (screen_width - enemy.regX)) {
                         enemy.nextX = enemy.x - velY;
                     }
-
 
                     if (enemy.nextX > (screen_height - enemy.regX)) {
                         enemy.reset();
@@ -265,11 +269,12 @@
                 break;
 
             case 2:
+                var enemy, i, velY;
+                var len = this.enemies.length - 1;
                 for (i = len; i >= 0; i--) {
                     enemy = this.enemies[i];
                     velY = enemy.speed * this.delta / 1000;
-
-                    enemy.nextY = enemy.y + velY / 3;
+                    enemy.nextY = enemy.y + velY;
                     if (enemy.nextX > enemy.regX) {
                         enemy.nextX = enemy.x - velY;
                     } else if (enemy.nextX < enemy.regX) {
@@ -460,6 +465,7 @@
                 enemy.reset();
                 this.enemyPool.returnSprite(enemy);
             } else {
+                enemy.x = enemy.nextX;
                 enemy.y = enemy.nextY;
             }
         }
@@ -648,7 +654,10 @@
 
             this.nextBossShip++; //another boss ship will be spawn next time
             this.level++;
-
+            this.healthMeter.reset();
+            if (level > 1) {
+                this.heroShip.playTransition();
+            }
 
             if (this.nextBossShip === 3) {
                 game.score = this.scoreboard.getScore();
@@ -728,6 +737,7 @@
             case 1, 3:
                 //enemy.x = Utils.getRandomNumber(enemy.getBounds().width, screen_width - enemy.getBounds().width);
                 enemy.x = 0;
+                createjs.Tween.get(enemy).to({ y: 250 }, 2000);
                 break;
             case 2:
                 enemy.x = screen_width;
@@ -805,7 +815,6 @@
             }
         }
     }
-
 
 
 

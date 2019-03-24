@@ -1,4 +1,4 @@
-(function (window) {
+(function(window) {
 
     window.game = window.game || {}
 
@@ -13,12 +13,12 @@
 
     p.Container_initialize = p.initialize;
 
-    p.initialize = function () {
+    p.initialize = function() {
         this.Container_initialize();
         this.buildSprites();
         this.positionBox();
     }
-    p.buildSprites = function () {
+    p.buildSprites = function() {
         var i, life;
         var xPos = 0;
         for (i = 0; i < this.numLives; i++) {
@@ -29,13 +29,13 @@
             xPos += life.getBounds().width;
         }
     }
-    p.positionBox = function () {
+    p.positionBox = function() {
         this.x = screen_width - this.getBounds().width;
         this.y = screen_height - this.getBounds().height;
     }
-    p.removeLife = function () {
+    p.removeLife = function() {
         var life = this.getChildAt(0);
-        life.on('animationend', function (e) {
+        life.on('animationend', function(e) {
             e.target.stop();
             this.removeChild(e.target);
         }, this)

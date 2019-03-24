@@ -95,36 +95,15 @@
     }
 
     p.gameStateGame = function(tickEvent) {
-            createjs.Sound.stop();
-            var scene = new game.Game();
-            scene.on(game.GameStateEvents.LEVEL_2, this.onStateEvent, this, true, { state: game.GameStates.LEVEL_2 });
-            scene.on(game.GameStateEvents.GAME_OVER, this.onStateEvent, this, true, { state: game.GameStates.GAME_OVER });
-            stage.addChild(scene);
-            this.disposeCurrentScene()
-            this.currentScene = scene;
-            this.changeState(game.GameStates.RUN_SCENE);
-        }
-        // p.gameStateLevel2 = function(tickEvent) {
-        //     createjs.Sound.stop();
-        //     var scene = new game.Level2();
-        //     scene.on(game.GameStateEvents.LEVEL_3, this.onStateEvent, this, true, { state: game.GameStates.LEVEL_3 });
-        //     scene.on(game.GameStateEvents.GAME_OVER, this.onStateEvent, this, true, { state: game.GameStates.GAME_OVER });
-        //     stage.addChild(scene);
-        //     this.disposeCurrentScene()
-        //     this.currentScene = scene;
-        //     this.changeState(game.GameStates.RUN_SCENE);
-        // }
-
-    // p.gameStateLevel3 = function(tickEvent) {
-    //     createjs.Sound.stop();
-    //     var scene = new game.Level3();
-    //     scene.on(game.GameStateEvents.GAME_OVER, this.onStateEvent, this, true, { state: game.GameStates.GAME_OVER });
-    //     stage.addChild(scene);
-    //     this.disposeCurrentScene()
-    //     this.currentScene = scene;
-    //     this.changeState(game.GameStates.RUN_SCENE);
-    // }
-
+        createjs.Sound.stop();
+        var scene = new game.Game();
+        scene.on(game.GameStateEvents.LEVEL_2, this.onStateEvent, this, true, { state: game.GameStates.LEVEL_2 });
+        scene.on(game.GameStateEvents.GAME_OVER, this.onStateEvent, this, true, { state: game.GameStates.GAME_OVER });
+        stage.addChild(scene);
+        this.disposeCurrentScene()
+        this.currentScene = scene;
+        this.changeState(game.GameStates.RUN_SCENE);
+    }
 
     p.gameStateGame = function(tickEvent) {
         var scene = new game.Game();

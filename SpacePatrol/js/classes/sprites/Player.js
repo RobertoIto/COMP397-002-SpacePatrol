@@ -1,4 +1,4 @@
-(function (window) {
+(function(window) {
 
     window.game = window.game || {}
 
@@ -20,36 +20,43 @@
     p.nextX = null;
     p.nextY = null;
 
-    p.initialize = function () {
+    p.initialize = function() {
         this.Sprite_initialize(spritesheet, "heroIdle");
         this.regX = this.getBounds().width / 2;
         this.regY = this.getBounds().height / 2;
     }
-    p.takeDamage = function () {
+    p.takeDamage = function() {
         this.gotoAndPlay("heroHit");
     }
-    p.explode = function () {
+    p.explode = function() {
         this.gotoAndPlay('explosion');
         this.regX = this.regY = this.EXPLOSION_OFFSET;
         this.on('animationend', this.explosionComplete, this, true);
         createjs.Sound.play(game.assets.EXPLOSION);
     }
-    p.explosionComplete = function (e) {
+    p.explosionComplete = function(e) {
         this.stop();
         this.dispatchEvent(this.EXPLOSION_COMPLETE);
     }
-    p.reset = function () {
+    p.reset = function() {
         this.shouldDie = false;
         this.gotoAndStop('heroIdle');
         this.regX = this.getBounds().width / 2;
         this.regY = this.getBounds().height / 2;
     }
-    p.makeInvincible = function () {
+    p.makeInvincible = function() {
         this.invincible = true;
         this.alpha = .4;
         setTimeout(this.removeInvincible.bind(this), this.INVINCIBLE_TIME);
     }
-    p.removeInvincible = function () {
+
+    //method for transitation
+    p.playTransition = function() {
+        createjs.Tween.get(this).to({ y: 0 }, 500, createjs.Ease.linear);
+
+    }
+
+    p.removeInvincible = function() {
         this.invincible = false;
         this.alpha = 1;
     }
