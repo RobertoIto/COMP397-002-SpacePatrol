@@ -21,11 +21,16 @@
     p.nextX = 0;
     p.shouldDie = false;
 
+    p.velx = 2;
+    p.vely = 2;
+
     p.initialize = function(startX) {
         this.type = Utils.getRandomNumber(0, 4) + 1;
 
         //this.HP = this.type * 3;
         this.HP = this.type;
+        this.velx = this.type * 2;
+        this.vely = this.type * 2;
 
         this.points = this.type * 10;
         this.Sprite_initialize(spritesheet, "enemy" + this.type + "Idle");

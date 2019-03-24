@@ -23,7 +23,7 @@
     p.enemyBulletPool = null;
     p.enemyBullets = null;
     p.enemyLastSpawnTime = null;
-    p.enemySpawnWaiter = 2000;
+    p.enemySpawnWaiter = 1000;
 
     // Bosses
     p.boss = null;
@@ -88,7 +88,6 @@
         this.betweenLevels = false;
         this.enemyLastSpawnTime = 0;
         this.bossLastSpawnTime = 0;
-        this.nextBossShip = 0;
         this.meteorPool = [];
         this.meteors = [];
         this.meteorLastSpawnTime = 0;
@@ -119,12 +118,12 @@
         this.heroShip.on(this.heroShip.EXPLOSION_COMPLETE, this.checkGame, this);
         this.heroShip.x = screen_width / 2;
         this.heroShip.y = screen_height - this.heroShip.getBounds().height;
-        this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
-        this.heroMissilePool = new game.SpritePool(game.Missile, 20);
-        this.enemyBulletPool = new game.SpritePool(game.Bullet, 20);
-        this.enemyPool = new game.SpritePool(game.EnemyShip, 10);
+        this.heroBulletPool = new game.SpritePool(game.Bullet, 50);
+        this.heroMissilePool = new game.SpritePool(game.Missile, 50);
+        this.enemyBulletPool = new game.SpritePool(game.Bullet, 50);
+        this.enemyPool = new game.SpritePool(game.EnemyShip, 30);
         this.meteorPool = new game.SpritePool(game.Meteor, 10);
-        this.explosionPool = new game.SpritePool(game.Explosion, 10);
+        this.explosionPool = new game.SpritePool(game.Explosion, 20);
         this.healthMeter = new game.HealthMeter();
         this.scoreboard = new game.Scoreboard();
         this.lifeBox = new game.LifeBox(this.numLives);
@@ -243,85 +242,33 @@
         }
     }
     p.updateEnemies = function() {
+        var enemy, i, velY;
+        var len = this.enemies.length - 1;
+        for (i = len; i >= 0; i--) {
+            enemy = this.enemies[i];
+            velY = enemy.speed * this.delta / 1000;
 
+            var nextX = enemy.x + enemy.velx;
+            var nextY = enemy.y + enemy.vely;
 
-        switch (this.level) {
-            case 1:
-                var enemy, i, velY;
-                var len = this.enemies.length - 1;
-                for (i = len; i >= 0; i--) {
-                    enemy = this.enemies[i];
-                    velY = enemy.speed * this.delta / 1000;
-                    enemy.nextY = enemy.y + velY;
-                    if (enemy.nextX < (screen_width - enemy.regX)) {
-                        enemy.nextX = enemy.x + velY;
-                    } else if (enemy.nextX > (screen_width - enemy.regX)) {
-                        enemy.nextX = enemy.x - velY;
-                    }
+            if (nextX < (this.leftWall + 35)) {
+                nextX = this.leftWall + 35;
+                enemy.velx *= -1;
+            } else if (nextX > (this.rightWall - 35)) {
+                nextX = this.rightWall - 35;
+                enemy.velx *= -1;
+            }
 
-                    if (enemy.nextX > (screen_height - enemy.regX)) {
-                        enemy.reset();
-                        this.enemyPool.returnSprite(enemy);
-                        this.removeChild(enemy);
-                        this.enemies.splice(i, 1);
-                    }
-                }
-                break;
+            if (nextY > (this.floor / 1.5)) {
+                nextY = this.floor / 1.5;
+                enemy.vely *= -1;
+            } else if (nextY < (this.ceiling)) {
+                nextY = this.ceiling;
+                enemy.vely *= -1;
+            }
 
-            case 2:
-                var enemy, i, velY;
-                var len = this.enemies.length - 1;
-                for (i = len; i >= 0; i--) {
-                    enemy = this.enemies[i];
-                    velY = enemy.speed * this.delta / 1000;
-                    enemy.nextY = enemy.y + velY;
-                    if (enemy.nextX > enemy.regX) {
-                        enemy.nextX = enemy.x - velY;
-                    } else if (enemy.nextX < enemy.regX) {
-                        enemy.nextX = enemy.x + velY;
-                    }
-
-                    if (enemy.nextX < enemy.regX) {
-                        enemy.reset();
-                        this.enemyPool.returnSprite(enemy);
-                        this.removeChild(enemy);
-                        this.enemies.splice(i, 1);
-                    }
-                }
-                break;
-
-            case 3:
-                var enemy, i, velY;
-                var len = this.enemies.length - 1;
-                var moveDown = true;
-                for (i = len; i >= 0; i--) {
-                    enemy = this.enemies[i];
-                    velY = enemy.speed * this.delta / 1000;
-                    if (moveDown) {
-                        enemy.nextY = enemy.y + velY;
-                        if (enemy.nextY > 200) {
-                            moveDown = false;
-                        }
-                    } else {
-                        enemy.nextY = enemy.y - velY;
-                    }
-
-                    if (enemy.nextX < (screen_width - enemy.regX)) {
-                        enemy.nextX = enemy.x + velY;
-                    } else if (enemy.nextX > (screen_width - enemy.regX)) {
-                        enemy.nextX = enemy.x - velY;
-                    }
-
-
-                    if (enemy.nextX > (screen_height - enemy.regX)) {
-                        enemy.reset();
-                        this.enemyPool.returnSprite(enemy);
-                        this.removeChild(enemy);
-                        this.enemies.splice(i, 1);
-                    }
-                }
-                break;
-
+            enemy.nextX = nextX;
+            enemy.nextY = nextY;
         }
     }
     p.updateBoss = function() {
@@ -652,14 +599,7 @@
             this.spawnEnemyExplosion(this.boss.x, this.boss.y);
             this.bossLastSpawnPoints = this.scoreboard.score;
 
-            this.nextBossShip++; //another boss ship will be spawn next time
-            this.level++;
-            this.healthMeter.reset();
-            if (level > 1) {
-                this.heroShip.playTransition();
-            }
-
-            if (this.nextBossShip === 3) {
+            if (this.nextBossShip >= 3) {
                 game.score = this.scoreboard.getScore();
                 this.dispose();
                 this.dispatchEvent(game.GameStateEvents.GAME_WIN);
@@ -731,18 +671,10 @@
     p.spawnEnemyShip = function() {
 
         var enemy = this.enemyPool.getSprite();
-        enemy.y = enemy.getBounds().height;
+        enemy.y = 0;
+        enemy.x = Utils.getRandomNumber(enemy.getBounds().width, screen_width - enemy.getBounds().width);
 
-        switch (this.level) {
-            case 1, 3:
-                //enemy.x = Utils.getRandomNumber(enemy.getBounds().width, screen_width - enemy.getBounds().width);
-                enemy.x = 0;
-                createjs.Tween.get(enemy).to({ y: 250 }, 2000);
-                break;
-            case 2:
-                enemy.x = screen_width;
-                break;
-        }
+        createjs.Tween.get(enemy).to({ y: 250 }, 2000);
 
         this.addChild(enemy);
         this.enemies.push(enemy);

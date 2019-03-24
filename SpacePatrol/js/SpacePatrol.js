@@ -97,7 +97,7 @@
     p.gameStateGame = function(tickEvent) {
         createjs.Sound.stop();
         var scene = new game.Game();
-        scene.on(game.GameStateEvents.LEVEL_2, this.onStateEvent, this, true, { state: game.GameStates.LEVEL_2 });
+        scene.on(game.GameStateEvents.GAME_WIN, this.onStateEvent, this, true, { state: game.GameStates.GAME_WIN });
         scene.on(game.GameStateEvents.GAME_OVER, this.onStateEvent, this, true, { state: game.GameStates.GAME_OVER });
         stage.addChild(scene);
         this.disposeCurrentScene()
