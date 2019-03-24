@@ -23,7 +23,7 @@
     p.enemyBulletPool = null;
     p.enemyBullets = null;
     p.enemyLastSpawnTime = null;
-    p.enemySpawnWaiter = 1000;
+    p.enemySpawnWaiter = 2000;
 
     // Bosses
     p.boss = null;
@@ -54,7 +54,7 @@
     p.ceiling = null;
     p.floor = null;
     p.betweenLevels = true;
-    p.numLives = 5;
+    p.numLives = 10;
     p.delta = null;
 
     // Controls
@@ -65,6 +65,7 @@
 
     //level
     p.level = 1;
+    p.levelup = false;
 
     p.initialize = function() {
         this.Container_initialize();
@@ -202,6 +203,11 @@
         var velocity = this.heroShip.speed * this.delta / 1000;
         var nextX = this.heroShip.x;
         var nextY = this.heroShip.y;
+        if (this.levelup) {
+            this.heroShip.playTransition();
+            this.levelup = false;
+        }
+
         if (this.leftKeyDown) {
             nextX -= velocity;
             if (nextX < this.leftWall) {
@@ -598,6 +604,12 @@
             this.boss.explode();
             this.spawnEnemyExplosion(this.boss.x, this.boss.y);
             this.bossLastSpawnPoints = this.scoreboard.score;
+
+            this.level++; //level up
+            this.levelup = true; //to play trasitation
+            this.healthMeter.reset(); //restore health meter to full
+            this.enemySpawnWaiter -= 130 * this.level; //enemy spawn faster than previous level
+            this.bossSpawnWaiter += 150 * this.level; //more score needed before next boss spawn
 
             if (this.nextBossShip >= 3) {
                 game.score = this.scoreboard.getScore();

@@ -52,8 +52,13 @@
 
     //method for transitation
     p.playTransition = function() {
-        createjs.Tween.get(this).to({ y: 0 }, 500, createjs.Ease.linear);
-
+        this.invincible = true;
+        this.alpha = .4;
+        setTimeout(this.removeInvincible.bind(this), 3500);
+        createjs.Tween.get(this).to({ y: 0 }, 1500, createjs.Ease.linear)
+            .to({ x: 400, y: 760 }, 1500, createjs.Ease.bounceOut);
+        this.shouldDie = false;
+        this.gotoAndStop('heroIdle');
     }
 
     p.removeInvincible = function() {
