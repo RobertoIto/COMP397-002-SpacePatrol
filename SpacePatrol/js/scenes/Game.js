@@ -29,14 +29,14 @@
     p.boss = null;
     p.bossLastSpawnTime = 0;
     p.bossLastSpawnPoints = 0;
-    p.bossSpawnWaiter = 400; //10000;
+    p.bossSpawnWaiter = 200; //400; //10000;
     p.nextBossShip = 0;
 
     // Meteors
     p.meteorPool = null;
     p.meteor = null;
     p.meteorLastSpawnTime = null;
-    p.meteorSpawnWaiter = 3000;
+    p.meteorSpawnWaiter = 1000;
 
 
     // SPRITES
@@ -92,6 +92,7 @@
         this.meteorPool = [];
         this.meteors = [];
         this.meteorLastSpawnTime = 0;
+        this.nextBossShip = 0;
     }
     p.buildStarField = function() {
         var star, alpha;
@@ -114,7 +115,7 @@
         this.heroShip.x = screen_width / 2;
         this.heroShip.y = screen_height - this.heroShip.getBounds().height;
         this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
-        this.heroMissilePool = new game.SpritePool(game.Missile, 7);
+        this.heroMissilePool = new game.SpritePool(game.Missile, 20);
         this.enemyBulletPool = new game.SpritePool(game.Bullet, 20);
         this.enemyPool = new game.SpritePool(game.EnemyShip, 10);
         this.meteorPool = new game.SpritePool(game.Meteor, 10);
@@ -122,8 +123,9 @@
         this.healthMeter = new game.HealthMeter();
         this.scoreboard = new game.Scoreboard();
         this.lifeBox = new game.LifeBox(this.numLives);
-        //this.addChild(this.heroShip, this.healthMeter, this.scoreboard, this.lifeBox);
-        this.addChild(this.heroShip, this.scoreboard, this.lifeBox);
+        this.deleteHeroBullets();
+        this.addChild(this.heroShip, this.healthMeter, this.scoreboard, this.lifeBox);
+        //this.addChild(this.heroShip, this.scoreboard, this.lifeBox);
     }
     p.setWalls = function() {
         this.leftWall = this.heroShip.getBounds().width / 2;
@@ -579,7 +581,7 @@
                 bullet.shouldDie = true;
                 this.heroShip.takeDamage();
                 this.heroShip.shouldDie;
-                this.healthMeter.takeDamage(10);
+                this.healthMeter.takeDamage(20.1);
             }
         }
     }
@@ -635,6 +637,7 @@
             this.lifeBox.removeLife();
             this.betweenLevels = true;
             this.deleteHeroBullets();
+            this.healthMeter.reset();
         }
     }
     p.checkBoss = function() {
@@ -647,9 +650,11 @@
             this.level++;
 
 
-
-            // this.dispose();
-            // this.dispatchEvent(game.GameStateEvents.LEVEL_2);
+            if (this.nextBossShip === 3) {
+                game.score = this.scoreboard.getScore();
+                this.dispose();
+                this.dispatchEvent(game.GameStateEvents.GAME_WIN);
+            }
         }
     }
     p.checkGame = function(e) {

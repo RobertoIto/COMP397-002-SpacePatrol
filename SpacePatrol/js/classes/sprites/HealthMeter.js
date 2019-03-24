@@ -8,46 +8,45 @@
 
     var p = HealthMeter.prototype = new createjs.Container();
 
-    p.meter = null;
-    p.maxDamage = null;
-    p.damage = 0;
+    p.width = 100;
+    p.height = 30;
+    p.fillColor = '#66ff66';
+    p.strokeColor = '#FFF';
+    p.bar;
+    p.damage = 1;
     p.empty = false;
 
     p.Container_initialize = p.initialize;
 
     p.initialize = function () {
         this.Container_initialize();
-        this.x = this.y = 5;
         this.buildMeter();
     }
     p.buildMeter = function () {
-        var health = new createjs.Sprite(spritesheet, 'healthHUD');
-        this.meter = new createjs.Sprite(spritesheet, 'progessHUD');
-        
-        //this.maxDamage = this.meter.spriteSheet.getAnimation(this.meter.currentAnimation).frames.length - 1;
-        this.maxDamage = 10;
-
-        this.meter.paused = true;
-        this.addChild(health, this.meter);
+        var outline = new createjs.Shape();
+        outline.graphics.beginStroke(this.strokeColor);
+        outline.graphics.drawRect(0, 0, this.width, this.height);
+        this.bar = new createjs.Shape();
+        this.bar.graphics.beginFill(this.fillColor);
+        this.bar.graphics.drawRect(0, 0, this.width, this.height);
+        this.bar.scaleX = 1;
+        this.addChild(this.bar, outline);
     }
-    p.takeDamage = function (damage) {
-        this.damage += damage;
-        var perc = this.damage / this.maxDamage > 1 ? 1 : this.damage / this.maxDamage;
-        var frame = (this.maxDamage * perc);
-        createjs.Tween.get(this.meter).to({currentAnimationFrame:frame}, 100)
-            .call(this.checkHealth, null, this);
+    p.takeDamage = function (dam) {
+        this.damage -= (dam / 100)
+        this.bar.scaleX = this.damage;
+        this.checkHealth();
     }
     p.checkHealth = function (e) {
-        if (this.meter.currentAnimationFrame === this.maxDamage) {
+        if (this.damage <= 0) {
             this.empty = true;
         }
     }
     p.reset = function (e) {
-        this.damage = 0;
+        this.damage = 1;
+        this.bar.scaleX = 1;
         this.empty = false;
-        this.meter.currentAnimationFrame = 0;
     }
-
     window.game.HealthMeter = HealthMeter;
 
 }(window));

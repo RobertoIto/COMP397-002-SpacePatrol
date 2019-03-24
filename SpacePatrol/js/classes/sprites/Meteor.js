@@ -22,7 +22,10 @@
         
         this.HP = this.type;
         
-        this.points = this.type * 10;
+        this.points = this.type * 5;
+
+        this.speed = this.type * 300;
+
         this.Sprite_initialize(spritesheet, "asteroid" + this.type);
         this.regX = this.getBounds().width / 2;
         this.regY = this.getBounds().height / 2;
@@ -42,7 +45,7 @@
         
         this.HP = this.type;
 
-        this.points = this.type * 10;
+        this.points = this.type * 5;
         this.gotoAndPlay("asteroid" + this.type);
     }
 

@@ -6,18 +6,16 @@
         MAIN_MENU: 0,
         RUN_SCENE: 1,
         GAME: 10,
-        GAME_OVER: 20
-            //LEVEL_2: 30,
-            //LEVEL_3: 40
+        GAME_OVER: 20,
+        GAME_WIN: 30
     }
 
     var GameStateEvents = {
         MAIN_MENU: 'main menu event',
         GAME_OVER: 'game over event',
+        GAME_WIN: 'game win event',
         MAIN_MENU_SELECT: 'game menu select event',
-        GAME: 'level 1 event'
-            //LEVEL_2: 'level 2 event',
-            //LEVEL_3: 'level 3 event'
+        GAME: 'game event'
     }
 
     window.game.GameStates = GameStates;
