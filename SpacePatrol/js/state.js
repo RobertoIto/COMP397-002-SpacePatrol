@@ -1,21 +1,21 @@
-(function () {
+(function() {
 
     window.game = window.game || {};
 
     var GameStates = {
-        MAIN_MENU:0,
-        RUN_SCENE:1,
-        GAME:10,
-        GAME_OVER:20,
+        MAIN_MENU: 0,
+        RUN_SCENE: 1,
+        GAME: 10,
+        GAME_OVER: 20,
         GAME_WIN: 30
     }
 
     var GameStateEvents = {
-        MAIN_MENU:'main menu event',
-        GAME_OVER:'game over event',
-        GAME_WIN:'game win event',
-        MAIN_MENU_SELECT:'game menu select event',
-        GAME:'game event'
+        MAIN_MENU: 'main menu event',
+        GAME_OVER: 'game over event',
+        GAME_WIN: 'game win event',
+        MAIN_MENU_SELECT: 'game menu select event',
+        GAME: 'game event'
     }
 
     window.game.GameStates = GameStates;

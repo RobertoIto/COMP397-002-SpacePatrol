@@ -23,7 +23,7 @@
     p.enemyBulletPool = null;
     p.enemyBullets = null;
     p.enemyLastSpawnTime = null;
-    p.enemySpawnWaiter = 2000;
+    p.enemySpawnWaiter = 1000;
 
     // Bosses
     p.boss = null;
@@ -85,7 +85,6 @@
         this.betweenLevels = false;
         this.enemyLastSpawnTime = 0;
         this.bossLastSpawnTime = 0;
-        this.nextBossShip = 0;
         this.meteorPool = [];
         this.meteors = [];
         this.meteorLastSpawnTime = 0;
@@ -93,17 +92,22 @@
     }
     p.buildStarField = function() {
         var star, alpha;
-        var numStars = 20;
+        var numStars = 200;
         for (i = 0; i < numStars; i++) {
             //star = new createjs.Sprite(spritesheet, 'star3');
-            star = new createjs.Sprite(spritesheet, 'star');
+            //star = new createjs.Sprite(spritesheet, 'star');
+            starSky = new createjs.Container();
+            star = new createjs.Shape();
             star.speed = Utils.getRandomNumber(100, 200);
             star.x = Math.random() * screen_width;
             star.y = Math.random() * screen_height;
             alpha = Math.random();
             star.alpha = alpha;
-            this.addChild(star);
+            star.graphics.beginFill("#FFF").drawCircle(0, 0, 1);
+
+            starSky.addChild(star);
             this.stars.push(star);
+            this.addChild(starSky);
         }
     }
     p.buildSprites = function() {
@@ -111,12 +115,12 @@
         this.heroShip.on(this.heroShip.EXPLOSION_COMPLETE, this.checkGame, this);
         this.heroShip.x = screen_width / 2;
         this.heroShip.y = screen_height - this.heroShip.getBounds().height;
-        this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
-        this.heroMissilePool = new game.SpritePool(game.Missile, 20);
-        this.enemyBulletPool = new game.SpritePool(game.Bullet, 20);
-        this.enemyPool = new game.SpritePool(game.EnemyShip, 10);
+        this.heroBulletPool = new game.SpritePool(game.Bullet, 50);
+        this.heroMissilePool = new game.SpritePool(game.Missile, 50);
+        this.enemyBulletPool = new game.SpritePool(game.Bullet, 50);
+        this.enemyPool = new game.SpritePool(game.EnemyShip, 30);
         this.meteorPool = new game.SpritePool(game.Meteor, 10);
-        this.explosionPool = new game.SpritePool(game.Explosion, 10);
+        this.explosionPool = new game.SpritePool(game.Explosion, 20);
         this.healthMeter = new game.HealthMeter();
         this.scoreboard = new game.Scoreboard();
         this.lifeBox = new game.LifeBox(this.numLives);
@@ -240,13 +244,28 @@
         for (i = len; i >= 0; i--) {
             enemy = this.enemies[i];
             velY = enemy.speed * this.delta / 1000;
-            enemy.nextY = enemy.y + velY;
-            if (enemy.nextY > screen_height) {
-                enemy.reset();
-                this.enemyPool.returnSprite(enemy);
-                this.removeChild(enemy);
-                this.enemies.splice(i, 1);
+
+            var nextX = enemy.x + enemy.velx;
+            var nextY = enemy.y + enemy.vely;
+
+            if (nextX < (this.leftWall + 35)) {
+                nextX = this.leftWall + 35;
+                enemy.velx *= -1;
+            } else if (nextX > (this.rightWall - 35)) {
+                nextX = this.rightWall - 35;
+                enemy.velx *= -1;
             }
+
+            if (nextY > (this.floor / 1.5)) {
+                nextY = this.floor / 1.5;
+                enemy.vely *= -1;
+            } else if (nextY < (this.ceiling)) {
+                nextY = this.ceiling;
+                enemy.vely *= -1;
+            }
+
+            enemy.nextX = nextX;
+            enemy.nextY = nextY;
         }
     }
     p.updateBoss = function() {
@@ -390,6 +409,7 @@
                 enemy.reset();
                 this.enemyPool.returnSprite(enemy);
             } else {
+                enemy.x = enemy.nextX;
                 enemy.y = enemy.nextY;
             }
         }
@@ -431,9 +451,9 @@
             (this.boss == null)) {
             this.nextBossShip += 1;
             this.spawnBossShip(this.nextBossShip);
-            
+
             //this.bossLastSpawnTime = time;
-        } 
+        }
         //else if (this.boss != null) {
         //    this.bossLastSpawnTime = time;
         //}
@@ -567,7 +587,7 @@
             this.lifeBox.removeLife();
             this.betweenLevels = true;
             this.deleteHeroBullets();
-            this.healthMeter.reset();            
+            this.healthMeter.reset();
         }
     }
     p.checkBoss = function() {
@@ -576,11 +596,11 @@
             this.spawnEnemyExplosion(this.boss.x, this.boss.y);
             this.bossLastSpawnPoints = this.scoreboard.score;
 
-            if (this.nextBossShip === 3){
+            if (this.nextBossShip >= 3) {
                 game.score = this.scoreboard.getScore();
                 this.dispose();
-                this.dispatchEvent(game.GameStateEvents.GAME_WIN);                
-            }        
+                this.dispatchEvent(game.GameStateEvents.GAME_WIN);
+            }
         }
     }
     p.checkGame = function(e) {
@@ -592,7 +612,7 @@
         } else {
             game.score = this.scoreboard.getScore();
             this.dispose();
-            this.dispatchEvent(game.GameStateEvents.GAME_OVER);    
+            this.dispatchEvent(game.GameStateEvents.GAME_OVER);
         }
     }
     p.checkCollectMissile = function() {
@@ -644,13 +664,18 @@
         this.addChild(meteor);
         this.meteors.push(meteor);
     }
+
     p.spawnEnemyShip = function() {
         var enemy = this.enemyPool.getSprite();
-        enemy.y = -enemy.getBounds().height;
+        enemy.y = 0;
         enemy.x = Utils.getRandomNumber(enemy.getBounds().width, screen_width - enemy.getBounds().width);
+                
+        createjs.Tween.get(enemy).to({ y: 250 }, 2000);
+ 
         this.addChild(enemy);
         this.enemies.push(enemy);
     }
+
     p.spawnBossShip = function() {
         if (this.nextBossShip < 4) {
             this.boss = new game.BossShip(this.nextBossShip);
@@ -718,11 +743,16 @@
             }
         }
     }
+
+
+
+
+
     /*
-    *
-    * GAME LOOP
-    *
-    */
+     *
+     * GAME LOOP
+     *
+     */
     p.update = function() {
         this.updateStars();
         this.updateHeroShip()
