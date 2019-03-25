@@ -21,7 +21,7 @@
         title.regX = title.getBounds().width / 2;
         title.x = screen_width / 2;
         title.y = -50;
-        createjs.Tween.get(title).to({ y: titleYPos }, 500)
+        createjs.Tween.get(title).to({ y: titleYPos }, 1500)
             .call(this.bringTitle, null, this);
         this.addChild(title);
     }
