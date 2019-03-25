@@ -144,7 +144,8 @@
     "boss3Idle": { "frames": [87] },
     "boss1Idle": { "frames": [88] },
     "boss1Hit": { "frames": [89, 91, 94, 92, 93], "next": "boss1Idle", "speed": 0.3 },
-    "boss1": { "frames": [90] }
+    "boss1": { "frames": [90] },
+	"explosionFinal": { "frames": [82, 85, 83, 84, 86, 67, 71, 65, 64, 63, 66, 69, 68, 70],"speed": 0.08 }
 },
 
 "texturepacker": [

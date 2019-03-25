@@ -77,7 +77,7 @@
         this.buildSprites();
         this.setWalls();
         this.setControls();
-        //createjs.Sound.play(game.assets.SOUNDTRACK);
+        createjs.Sound.play(game.assets.SOUNDTRACK);
     }
     p.setProperties = function() {
         this.heroBulletPool = [];
@@ -217,11 +217,14 @@
             this.deleteEnemyBullets();
             this.deleteEnemies();
             this.deleteMeteors();
-            this.resetGame();
             this.enemyLastSpawnTime += 3000;
             this.meteorLastSpawnTime += 3000;
 
             this.heroShip.playTransition();
+            
+            this.deleteEnemyBullets();
+            this.deleteEnemyBullets();
+            this.resetGame();
             this.levelup = false;
         }
 
@@ -680,8 +683,8 @@
             this.heroBullets.splice(b, 1);
         }
 
-        this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
-        this.heroMissilePool = new game.SpritePool(game.Missile, 20);
+        //this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
+        //this.heroMissilePool = new game.SpritePool(game.Missile, 20);
     }
 
     p.deleteEnemyBullets = function() {
@@ -693,7 +696,7 @@
             this.enemyBullets.splice(b, 1);
         }
 
-        this.enemyBulletPool = new game.SpritePool(game.Bullet, 50);
+        //this.enemyBulletPool = new game.SpritePool(game.Bullet, 50);
     }
 
     p.deleteEnemies = function() {
@@ -716,6 +719,18 @@
             this.removeChild(meteor);
             meteor.reset();
         }
+    }
+
+    p.resetGame = function() {
+        this.enemies = [];
+        this.enemyBullets = [];
+
+        this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
+        this.heroMissilePool = new game.SpritePool(game.Missile, 20);
+        this.enemyBulletPool = new game.SpritePool(game.Bullet, 50);
+        this.enemyPool = new game.SpritePool(game.EnemyShip, 50);
+        this.meteorPool = new game.SpritePool(game.Meteor, 10);
+        this.explosionPool = new game.SpritePool(game.Explosion, 20);
     }
 
     /*
@@ -808,19 +823,6 @@
                 p.collectMissileTime = 1;
             }
         }
-    }
-
-
-    p.resetGame = function() {
-        this.enemies = [];
-        this.enemyBullets = [];
-
-        this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
-        this.heroMissilePool = new game.SpritePool(game.Missile, 20);
-        this.enemyBulletPool = new game.SpritePool(game.Bullet, 50);
-        this.enemyPool = new game.SpritePool(game.EnemyShip, 50);
-        this.meteorPool = new game.SpritePool(game.Meteor, 10);
-        this.explosionPool = new game.SpritePool(game.Explosion, 20);
     }
 
 

@@ -13,10 +13,23 @@
     p.initialize = function () {
         this.Container_initialize();
         createjs.Sound.stop();
+        this.finalAnimation();
+    }
+
+    p.finalAnimation = function (){
+        var explosion = new game.FinalExplosion();        
+        explosion.x = 300;
+        explosion.y = 400;
+        createjs.Tween.get(explosion).to({ y: 200 }, 4000)
+             .call(this.addComponents, null, this);
+        this.addChild(explosion); 
+    }
+    p.addComponents = function (){
         this.addMessage();
         this.addScore();
         this.addButton();
     }
+
     p.addMessage = function () {
         var text = new createjs.Text("You win!!!", "40px Showcard Gothic", "#66ff66");
         text.textBaseline = "middle";
