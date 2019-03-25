@@ -67,10 +67,13 @@
     p.level = 1;
     p.levelup = false;
 
+    //background
+    p.bg = null;
+
     p.initialize = function() {
         this.Container_initialize();
         this.setProperties();
-        this.buildStarField();
+        this.buildBackground();
         this.buildSprites();
         this.setWalls();
         this.setControls();
@@ -94,25 +97,16 @@
         this.meteorLastSpawnTime = 0;
         this.nextBossShip = 0;
     }
-    p.buildStarField = function() {
-        var star, alpha;
-        var numStars = 200;
-        for (i = 0; i < numStars; i++) {
-            //star = new createjs.Sprite(spritesheet, 'star3');
-            //star = new createjs.Sprite(spritesheet, 'star');
-            starSky = new createjs.Container();
-            star = new createjs.Shape();
-            star.speed = Utils.getRandomNumber(100, 200);
-            star.x = Math.random() * screen_width;
-            star.y = Math.random() * screen_height;
-            alpha = Math.random();
-            star.alpha = alpha;
-            star.graphics.beginFill("#FFF").drawCircle(0, 0, 1);
+    p.buildBackground = function() {
 
-            starSky.addChild(star);
-            this.stars.push(star);
-            this.addChild(starSky);
-        }
+        var url = "img/bg_" + this.level + ".jpg";
+        this.bg = new createjs.Bitmap(url);
+        this.bg.scaleX = 1.25;
+
+        this.addChild(this.bg);
+
+        this.bg.y = -2880;
+
     }
     p.buildSprites = function() {
         this.heroShip = new game.HeroShip();
@@ -186,19 +180,15 @@
          * UPDATE FUNCTIONS
          *
          */
-    p.updateStars = function() {
-        var i, star, velY, speed, nextY;
-        var len = this.stars.length;
-        for (i = 0; i < len; i++) {
-            star = this.stars[i];
-            velY = star.speed * this.delta / 1000;
-            nextY = star.y + velY;
-            if (nextY > screen_height) {
-                nextY = -10
-            }
-            star.nextY = nextY;
+    p.updateBackground = function() {
+
+        if (this.bg.y >= 0) {
+            this.bg.y = -2880;
         }
+        this.bg.y += 5;
+
     }
+
     p.updateHeroShip = function() {
         var velocity = this.heroShip.speed * this.delta / 1000;
         var nextX = this.heroShip.x;
@@ -610,7 +600,7 @@
             this.healthMeter.reset(); //restore health meter to full
             this.enemySpawnWaiter -= 130 * this.level; //enemy spawn faster than previous level
             this.bossSpawnWaiter += 150 * this.level; //more score needed before next boss spawn
-
+            buildBackground();
             if (this.nextBossShip >= 3) {
                 game.score = this.scoreboard.getScore();
                 this.dispose();
@@ -709,7 +699,7 @@
         bullet.currentAnimationFrame = 1;
         bullet.y = boss.y;
         bullet.x = boss.x;
-        this.addChildAt(bullet, 0);
+        this.addChild(bullet, 0);
         this.enemyBullets.push(bullet);
     }
     p.spawnEnemyBullet = function(enemy) {
@@ -717,7 +707,7 @@
         bullet.currentAnimationFrame = 1;
         bullet.y = enemy.y;
         bullet.x = enemy.x;
-        this.addChildAt(bullet, 0);
+        this.addChild(bullet, 0);
         this.enemyBullets.push(bullet);
     }
     p.spawnHeroBullet = function() {
@@ -729,7 +719,7 @@
         }
         bullet.x = this.heroShip.x;
         bullet.y = this.heroShip.y - this.heroShip.getBounds().height / 2;
-        this.addChildAt(bullet, 0);
+        this.addChild(bullet, 0);
         this.heroBullets.push(bullet);
     }
     p.spawnEnemyExplosion = function(x, y) {
@@ -770,7 +760,7 @@
      *
      */
     p.update = function() {
-        this.updateStars();
+        this.updateBackground();
         this.updateHeroShip()
         this.updateMeteors();
         this.updateEnemies();
