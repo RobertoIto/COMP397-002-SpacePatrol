@@ -77,7 +77,7 @@
         this.buildSprites();
         this.setWalls();
         this.setControls();
-        createjs.Sound.play(game.assets.SOUNDTRACK);
+        //createjs.Sound.play(game.assets.SOUNDTRACK);
     }
     p.setProperties = function() {
         this.heroBulletPool = [];
@@ -99,13 +99,13 @@
     }
     p.buildBackground = function() {
 
-        var url = "img/bg_" + this.level + ".jpg";
+        var url = "img/bg.jpg";
         this.bg = new createjs.Bitmap(url);
-        this.bg.scaleX = 1.25;
+        this.bg.scaleX = 1.25; //scale background to 800px
 
         this.addChild(this.bg);
 
-        this.bg.y = -2880;
+        this.bg.y = -10240;
 
     }
     p.buildSprites = function() {
@@ -180,18 +180,38 @@
          *
          */
     p.updateBackground = function() {
+        switch (this.level) {
+            case 1:
+                if (this.bg.y >= -7360) {
+                    this.bg.y = -10240;
+                }
 
-        if (this.bg.y >= 0) {
-            this.bg.y = -2880;
+                break;
+            case 2:
+                if (this.bg.y <= -6560) {
+                    this.bg.y = -6560;
+                }
+                if (this.bg.y >= -3680) {
+                    this.bg.y = -6560;
+                }
+                break;
+            case 3:
+                if (this.bg.y <= -2880) {
+                    this.bg.y = -2880;
+                }
+                if (this.bg.y >= 0) {
+                    this.bg.y = -2880;
+                }
+                break;
         }
         this.bg.y += 5;
-
     }
 
     p.updateHeroShip = function() {
         var velocity = this.heroShip.speed * this.delta / 1000;
         var nextX = this.heroShip.x;
         var nextY = this.heroShip.y;
+
         if (this.levelup) {
             this.deleteHeroBullets();
             this.deleteEnemyBullets();
@@ -200,7 +220,7 @@
             this.resetGame();
             this.enemyLastSpawnTime += 3000;
             this.meteorLastSpawnTime += 3000;
-            
+
             this.heroShip.playTransition();
             this.levelup = false;
         }
@@ -249,7 +269,7 @@
         var len = this.enemies.length - 1;
         for (i = len; i >= 0; i--) {
             enemy = this.enemies[i];
-            
+
             var nextX = enemy.x + enemy.velx;
             var nextY = enemy.y + enemy.vely;
 
@@ -606,7 +626,8 @@
             this.healthMeter.reset(); //restore health meter to full
             this.enemySpawnWaiter -= 130 * this.level; //enemy spawn faster than previous level
             this.bossSpawnWaiter += 150 * this.level; //more score needed before next boss spawn
-            buildBackground();
+
+
             if (this.nextBossShip >= 3) {
                 game.score = this.scoreboard.getScore();
                 this.dispose();
@@ -656,7 +677,7 @@
             bullet = this.heroBullets[b];
             this.removeChild(bullet);
             bullet.reset();
-            this.heroBullets.splice(i, 1);
+            this.heroBullets.splice(b, 1);
         }
 
         this.heroBulletPool = new game.SpritePool(game.Bullet, 20);
@@ -669,7 +690,7 @@
             bullet = this.enemyBullets[b];
             this.removeChild(bullet);
             bullet.reset();
-            this.enemyBullets.splice(i, 1);
+            this.enemyBullets.splice(b, 1);
         }
 
         this.enemyBulletPool = new game.SpritePool(game.Bullet, 50);
@@ -698,10 +719,10 @@
     }
 
     /*
-        *
-        * SPAWN FUNCTION
-        *
-        */
+     *
+     * SPAWN FUNCTION
+     *
+     */
     p.spawnMeteor = function() {
         var meteor = this.meteorPool.getSprite();
         meteor.y = -meteor.getBounds().height;
@@ -738,7 +759,7 @@
         bullet.currentAnimationFrame = 1;
         bullet.y = boss.y;
         bullet.x = boss.x;
-        this.addChild(bullet, 0);
+        this.addChild(bullet);
         this.enemyBullets.push(bullet);
     }
     p.spawnEnemyBullet = function(enemy) {
@@ -746,7 +767,7 @@
         bullet.currentAnimationFrame = 1;
         bullet.y = enemy.y;
         bullet.x = enemy.x;
-        this.addChild(bullet, 0);
+        this.addChild(bullet);
         this.enemyBullets.push(bullet);
     }
     p.spawnHeroBullet = function() {
@@ -758,7 +779,7 @@
         }
         bullet.x = this.heroShip.x;
         bullet.y = this.heroShip.y - this.heroShip.getBounds().height / 2;
-        this.addChild(bullet, 0);
+        this.addChild(bullet);
         this.heroBullets.push(bullet);
     }
     p.spawnEnemyExplosion = function(x, y) {
@@ -832,7 +853,7 @@
         if (!this.betweenLevels) {
             this.update();
             this.render();
-            if (!this.levelup){
+            if (!this.levelup) {
                 this.checkForMeteorSpawn(tickEvent.time);
                 this.checkForEnemySpawn(tickEvent.time);
                 this.checkForBossSpawn(tickEvent.time);
