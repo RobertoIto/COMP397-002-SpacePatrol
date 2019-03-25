@@ -10,7 +10,7 @@
 
     p.Sprite_initialize = p.initialize;
 
-    p.speed = 300;
+    p.speed = 500;
     p.nextY = null;
     p.shouldDie = false;
 
