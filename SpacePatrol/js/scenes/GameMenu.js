@@ -49,6 +49,10 @@
         createjs.Tween.get(this.text).to({ alpha: 1 }, 1000);
     }
     p.playGame = function(e) {
+        game.gScore = 0;
+        game.gNextBossShip = 0;
+        game.gNumLives = 5;
+        game.gLevel = 1;
         createjs.Sound.play(game.assets.EXPLOSION);
         this.dispatchEvent(game.GameStateEvents.GAME);
     }

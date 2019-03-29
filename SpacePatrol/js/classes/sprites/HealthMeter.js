@@ -38,7 +38,7 @@
         this.checkHealth();
     }
     p.checkHealth = function (e) {
-        if (this.damage <= 0) {
+        if (this.damage <= 0.1) {
             this.empty = true;
         }
     }
@@ -47,6 +47,10 @@
         this.bar.scaleX = 1;
         this.empty = false;
     }
+    p.getDamageValue = function () {
+        return this.damage;
+    }
+
     window.game.HealthMeter = HealthMeter;
 
 }(window));

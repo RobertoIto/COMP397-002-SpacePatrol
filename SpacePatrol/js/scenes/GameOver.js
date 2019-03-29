@@ -39,12 +39,14 @@
         var playBtnPoint = {x:215, y:380};
         var menuBtnPoint = {x:425, y:380};
         var me = this;
+        
         playBtn = new ui.SimpleButton('Play Again');
         playBtn.on('click', this.playAgain, this);
         playBtn.setButton({upColor:'#66ff66', color:'#FFF', borderColor:'#FFF', overColor:'#009933'});
         playBtn.x = playBtnPoint.x;
         playBtn.y = playBtnPoint.y;
         this.addChild(playBtn);
+        
         menuBtn = new ui.SimpleButton('Main Menu');
         menuBtn.on('click', this.mainMenu, this);
         menuBtn.setButton({upColor:'#66ff66', color:'#FFF', borderColor:'#FFF', overColor:'#009933'});
@@ -53,6 +55,10 @@
         this.addChild(menuBtn);
     }
     p.playAgain = function (e) {
+        game.gScore = 0;
+        game.gNextBossShip = 0;
+        game.gNumLives = 5;
+        game.gLevel = 1;
         this.dispatchEvent(game.GameStateEvents.GAME);
     }
     p.mainMenu = function (e) {

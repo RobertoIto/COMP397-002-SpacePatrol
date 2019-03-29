@@ -47,6 +47,8 @@
     p.scoreboard = null;
     p.collectMissile = null;
     p.collectMissileTime = 0;
+    p.collectHealthMeterUp = null;
+    p.collectHealthMeterUpTime = 0;
 
     //
     p.leftWall = null;
@@ -77,7 +79,7 @@
         this.buildSprites();
         this.setWalls();
         this.setControls();
-        createjs.Sound.play(game.assets.SOUNDTRACK);
+        createjs.Sound.play(game.assets.SOUNDTRACK, 0, 0, 0, 0, 0.8);
     }
     p.setProperties = function() {
         this.heroBulletPool = [];
@@ -95,7 +97,11 @@
         this.meteorPool = [];
         this.meteors = [];
         this.meteorLastSpawnTime = 0;
-        this.nextBossShip = 0;
+        this.heroBulletType = 1;
+        this.nextBossShip = game.gNextBossShip;
+        this.numLives = game.gNumLives;
+        this.level = game.gLevel;
+        this.bossLastSpawnPoints = game.gScore;
     }
     p.buildBackground = function() {
 
@@ -120,7 +126,9 @@
         this.meteorPool = new game.SpritePool(game.Meteor, 10);
         this.explosionPool = new game.SpritePool(game.Explosion, 20);
         this.healthMeter = new game.HealthMeter();
-        this.scoreboard = new game.Scoreboard();
+        
+        this.scoreboard = new game.Scoreboard(game.gScore);
+
         this.lifeBox = new game.LifeBox(this.numLives);
         this.addChild(this.heroShip, this.healthMeter, this.scoreboard, this.lifeBox);
         //this.addChild(this.heroShip, this.scoreboard, this.lifeBox);
@@ -416,6 +424,7 @@
                 this.removeChild(meteor);
                 this.spawnEnemyExplosion(meteor.x, meteor.y);
                 this.spawnCollectMissile(meteor.x, meteor.y);
+                this.spawnCollectHealthMeterUp(meteor.x, meteor.y);
                 meteor.reset();
                 this.meteorPool.returnSprite(meteor);
             } else {
@@ -434,6 +443,7 @@
                 this.removeChild(enemy);
                 this.spawnEnemyExplosion(enemy.x, enemy.y);
                 this.spawnCollectMissile(enemy.x, enemy.y);
+                this.spawnCollectHealthMeterUp(enemy.x, enemy.y);
                 enemy.reset();
                 this.enemyPool.returnSprite(enemy);
             } else {
@@ -559,7 +569,7 @@
                 bullet.shouldDie = true;
                 this.heroShip.takeDamage();
                 this.heroShip.shouldDie;
-                this.healthMeter.takeDamage(20.1);
+                this.healthMeter.takeDamage(20);
             }
         }
     }
@@ -630,12 +640,23 @@
             this.enemySpawnWaiter -= 130 * this.level; //enemy spawn faster than previous level
             this.bossSpawnWaiter += 150 * this.level; //more score needed before next boss spawn
 
-
-            if (this.nextBossShip >= 3) {
-                game.score = this.scoreboard.getScore();
-                this.dispose();
-                this.dispatchEvent(game.GameStateEvents.GAME_WIN);
+            game.score = this.scoreboard.getScore();
+            this.dispose();
+    
+            if (this.nextBossShip == 1) {
+                this.dispatchEvent(game.GameStateEvents.GAME_TRANSITION_1);
+            } else {
+                if (this.nextBossShip == 2) {
+                    this.dispatchEvent(game.GameStateEvents.GAME_TRANSITION_2);
+                } else {
+                    this.dispatchEvent(game.GameStateEvents.GAME_WIN);    
+                }
             }
+
+            game.gScore = this.scoreboard.getScoreValue();
+            game.gNextBossShip = this.nextBossShip;
+            game.gNumLives = this.numLives;
+            game.gLevel = this.level;
         }
     }
     p.checkGame = function(e) {
@@ -671,6 +692,32 @@
                 p.collectMissile = null;
                 this.heroShip.makeInvincible(true);
                 this.deleteHeroBullets();
+            }
+        }
+    }
+    p.checkCollectHealthMeterUp = function() {
+        // Verify the lifetime of the collectible green cross in the stage
+        if (p.collectHealthMeterUp != null) {
+            if (p.collectHealthMeterUpTime <= 300) {
+                p.collectHealthMeterUpTime += 1;
+            } else {
+                this.removeChild(p.collectHealthMeterUp);
+                p.collectHealthMeterUp = null;
+                p.collectHealthMeterUpTime = 0;
+            }
+
+        }
+        // Verify the collision of the player and the collectible green cross
+        if (p.collectHealthMeterUp != null) {
+            collision = ndgmr.checkPixelCollision(this.heroShip, p.collectHealthMeterUp);
+            if (collision) {
+                this.removeChild(p.collectHealthMeterUp);
+                p.collectHealthMeterUp = null;
+                this.heroShip.makeInvincible(true);
+                // If the healthmeter bar is full do not add
+                if (this.healthMeter.getDamageValue() < 1){
+                    this.healthMeter.takeDamage(-20);
+                }                
             }
         }
     }
@@ -824,6 +871,19 @@
             }
         }
     }
+    p.spawnCollectHealthMeterUp = function(x, y) {
+        if (p.collectHealthMeterUp == null) {
+            var num = Utils.getRandomNumber(0, 5) + 1;
+            //num = 2;
+            if (num == 1) {
+                p.collectHealthMeterUp = new game.HealthMeterUp();
+                p.collectHealthMeterUp.x = x;
+                p.collectHealthMeterUp.y = y;
+                this.addChild(p.collectHealthMeterUp);
+                p.collectHealthMeterUpTime = 1;
+            }
+        }
+    }
 
 
     /*
@@ -873,6 +933,7 @@
             this.checkHero();
             this.checkBoss();
             this.checkCollectMissile();
+            this.checkCollectHealthMeterUp();
         }
     }
     p.dispose = function() {
