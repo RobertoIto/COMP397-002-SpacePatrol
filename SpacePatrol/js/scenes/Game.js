@@ -29,7 +29,7 @@
     p.boss = null;
     p.bossLastSpawnTime = 0;
     p.bossLastSpawnPoints = 0;
-    p.bossSpawnWaiter = 200; //400; //10000;
+    p.bossSpawnWaiter = 2000; //400; //10000;
     p.nextBossShip = 0;
 
     // Meteors
